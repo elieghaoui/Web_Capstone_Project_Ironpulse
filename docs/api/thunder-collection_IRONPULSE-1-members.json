@@ -1,0 +1,973 @@
+{
+  "client": "Thunder Client",
+  "clientName": "Thunder Client",
+  "collectionName": "IRONPULSE API 1 - members",
+  "collectionId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+  "dateExported": "2026-11-14T22:00:00.000Z",
+  "version": "1.2",
+  "folders": [
+    {
+      "_id": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "1. Public (no login)",
+      "containerId": "",
+      "created": "2026-11-14T22:00:00.000Z",
+      "sortNum": 10000
+    },
+    {
+      "_id": "6e76bbf7-904a-5848-880f-35bcc8402248",
+      "name": "2. Accounts and login",
+      "containerId": "",
+      "created": "2026-11-14T22:00:00.000Z",
+      "sortNum": 20000
+    },
+    {
+      "_id": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "3. Alice: plan and bookings",
+      "containerId": "",
+      "created": "2026-11-14T22:00:00.000Z",
+      "sortNum": 30000
+    },
+    {
+      "_id": "00d92031-9d77-5017-b695-c06491192f90",
+      "name": "4. Bob can't touch Alice's data",
+      "containerId": "",
+      "created": "2026-11-14T22:00:00.000Z",
+      "sortNum": 40000
+    }
+  ],
+  "requests": [
+    {
+      "_id": "88d3a141-45ce-5d66-a711-6c7d428cd353",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "Health check",
+      "url": "{{baseUrl}}/api/health",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "b68a0dc9-b0bd-51e1-be3d-106016f74a1a",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "List plans (saves Pro as planId)",
+      "url": "{{baseUrl}}/api/plans",
+      "method": "GET",
+      "sortNum": 20000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json[1]._id",
+          "action": "setto",
+          "value": "{{planId}}"
+        }
+      ]
+    },
+    {
+      "_id": "b60e8214-fdc0-56b0-86d7-25ad4dd8ed7f",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "One plan",
+      "url": "{{baseUrl}}/api/plans/{{planId}}",
+      "method": "GET",
+      "sortNum": 30000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "213c3069-b3da-5899-b938-9cf65712c7c9",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "List upcoming classes (saves classId)",
+      "url": "{{baseUrl}}/api/classes",
+      "method": "GET",
+      "sortNum": 40000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json[4]._id",
+          "action": "setto",
+          "value": "{{classId}}"
+        }
+      ]
+    },
+    {
+      "_id": "4453a082-d6c9-5434-8a2f-faeca24c028a",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "One class",
+      "url": "{{baseUrl}}/api/classes/{{classId}}",
+      "method": "GET",
+      "sortNum": 50000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "3ef15517-6f63-54a4-9560-3115280b7523",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "Classes filtered by category",
+      "url": "{{baseUrl}}/api/classes?category=Yoga",
+      "method": "GET",
+      "sortNum": 60000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "9891df54-2c0c-57c6-94e0-956183476b50",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "List trainers (saves trainerId)",
+      "url": "{{baseUrl}}/api/trainers",
+      "method": "GET",
+      "sortNum": 70000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json[0]._id",
+          "action": "setto",
+          "value": "{{trainerId}}"
+        }
+      ]
+    },
+    {
+      "_id": "d27898c7-6f34-5bdd-832e-fde33c2669d9",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "One trainer",
+      "url": "{{baseUrl}}/api/trainers/{{trainerId}}",
+      "method": "GET",
+      "sortNum": 80000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "dabb1376-029d-5ea1-919f-923ca83920c0",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "Trainer's free PT slots (saves 2 times)",
+      "url": "{{baseUrl}}/api/trainers/{{trainerId}}/slots",
+      "method": "GET",
+      "sortNum": 90000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json[6]",
+          "action": "setto",
+          "value": "{{ptTime}}"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json[7]",
+          "action": "setto",
+          "value": "{{ptTime2}}"
+        }
+      ]
+    },
+    {
+      "_id": "fe2f4190-cad8-5673-b3b2-2e6e877f9c3a",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "97ba61ec-f031-5f30-86e8-8397d31c68d5",
+      "name": "Malformed id -> 400",
+      "url": "{{baseUrl}}/api/plans/not-an-id",
+      "method": "GET",
+      "sortNum": 100000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "400"
+        }
+      ]
+    },
+    {
+      "_id": "1a912676-64a7-57ea-835d-b1dc0b435daa",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "6e76bbf7-904a-5848-880f-35bcc8402248",
+      "name": "Sign up Alice (409 if she exists)",
+      "url": "{{baseUrl}}/api/auth/signup",
+      "method": "POST",
+      "sortNum": 110000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Alice Member\",\n  \"email\": \"alice@ironpulse.test\",\n  \"password\": \"alicepass123\"\n}",
+        "form": []
+      }
+    },
+    {
+      "_id": "ccdc0626-2907-5719-8b5b-4ddfdea3c413",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "6e76bbf7-904a-5848-880f-35bcc8402248",
+      "name": "Log in Alice (saves aliceToken)",
+      "url": "{{baseUrl}}/api/auth/login",
+      "method": "POST",
+      "sortNum": 120000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.token",
+          "action": "setto",
+          "value": "{{aliceToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"alice@ironpulse.test\",\n  \"password\": \"alicepass123\"\n}",
+        "form": []
+      }
+    },
+    {
+      "_id": "52d84e67-f1ba-5af3-870d-27cd49b00c3d",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "6e76bbf7-904a-5848-880f-35bcc8402248",
+      "name": "Sign up Bob (409 if he exists)",
+      "url": "{{baseUrl}}/api/auth/signup",
+      "method": "POST",
+      "sortNum": 130000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Bob Member\",\n  \"email\": \"bob@ironpulse.test\",\n  \"password\": \"bobpass12345\"\n}",
+        "form": []
+      }
+    },
+    {
+      "_id": "10f9c521-ee70-5578-a460-a77f50add947",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "6e76bbf7-904a-5848-880f-35bcc8402248",
+      "name": "Log in Bob (saves bobToken)",
+      "url": "{{baseUrl}}/api/auth/login",
+      "method": "POST",
+      "sortNum": 140000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.token",
+          "action": "setto",
+          "value": "{{bobToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"bob@ironpulse.test\",\n  \"password\": \"bobpass12345\"\n}",
+        "form": []
+      }
+    },
+    {
+      "_id": "54343132-e5e4-5d24-b471-fc402019197b",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "6e76bbf7-904a-5848-880f-35bcc8402248",
+      "name": "Log in admin (saves adminToken)",
+      "url": "{{baseUrl}}/api/auth/login",
+      "method": "POST",
+      "sortNum": 150000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.token",
+          "action": "setto",
+          "value": "{{adminToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+        "form": []
+      }
+    },
+    {
+      "_id": "6a7c9768-408c-51a4-91ad-adaea5bc1aa6",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "6e76bbf7-904a-5848-880f-35bcc8402248",
+      "name": "Who am I (Alice)",
+      "url": "{{baseUrl}}/api/auth/me",
+      "method": "GET",
+      "sortNum": 160000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "343e1077-3c06-5b9a-983f-43c0a4016be0",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "6e76bbf7-904a-5848-880f-35bcc8402248",
+      "name": "Who am I without a token -> 401",
+      "url": "{{baseUrl}}/api/auth/me",
+      "method": "GET",
+      "sortNum": 170000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "401"
+        }
+      ]
+    },
+    {
+      "_id": "fb71cef6-4b36-5816-8963-a3b5bc88f230",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Book before choosing a plan -> 403",
+      "url": "{{baseUrl}}/api/bookings",
+      "method": "POST",
+      "sortNum": 180000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "403"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"type\": \"class\",\n  \"classId\": \"{{classId}}\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "58b37dbd-b99d-5089-a2dd-4d129527f3c6",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Choose the Pro plan",
+      "url": "{{baseUrl}}/api/me/plan",
+      "method": "PUT",
+      "sortNum": 190000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"planId\": \"{{planId}}\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "d3865151-2cb7-5dd4-b4a7-d40ca428c3d3",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Choose the same plan again -> 400",
+      "url": "{{baseUrl}}/api/me/plan",
+      "method": "PUT",
+      "sortNum": 200000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "400"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"planId\": \"{{planId}}\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "b1d1a1cd-53eb-5cfd-a389-c90707b1c3cd",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "My plan and usage",
+      "url": "{{baseUrl}}/api/me/plan",
+      "method": "GET",
+      "sortNum": 210000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "cefd2951-e891-5cd8-9898-decb1b5456d5",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Book a class -> 201 (saves bookingId)",
+      "url": "{{baseUrl}}/api/bookings",
+      "method": "POST",
+      "sortNum": 220000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "201"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json._id",
+          "action": "setto",
+          "value": "{{bookingId}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"type\": \"class\",\n  \"classId\": \"{{classId}}\",\n  \"note\": \"First class!\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "cd110623-5afa-5ee4-8961-fe604e50b045",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Book the same class again -> 409",
+      "url": "{{baseUrl}}/api/bookings",
+      "method": "POST",
+      "sortNum": 230000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "409"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"type\": \"class\",\n  \"classId\": \"{{classId}}\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "7d474d69-49af-55ad-8225-6fdbc5a6ab95",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Book a PT session -> 201 (saves ptBookingId)",
+      "url": "{{baseUrl}}/api/bookings",
+      "method": "POST",
+      "sortNum": 240000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "201"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json._id",
+          "action": "setto",
+          "value": "{{ptBookingId}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"type\": \"pt\",\n  \"trainerId\": \"{{trainerId}}\",\n  \"startsAt\": \"{{ptTime}}\",\n  \"note\": \"Knee injury, go easy\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "5afe3f1f-e330-502e-be3d-e9fa182d3b06",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "2nd PT session: Pro includes only 1 -> 403",
+      "url": "{{baseUrl}}/api/bookings",
+      "method": "POST",
+      "sortNum": 250000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "403"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"type\": \"pt\",\n  \"trainerId\": \"{{trainerId}}\",\n  \"startsAt\": \"{{ptTime2}}\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "c2a66149-ef2a-5495-91fb-506bf3203e59",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "PT outside the trainer's hours -> 400",
+      "url": "{{baseUrl}}/api/bookings",
+      "method": "POST",
+      "sortNum": 260000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "400"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"type\": \"pt\",\n  \"trainerId\": \"{{trainerId}}\",\n  \"startsAt\": \"2030-01-01T03:00:00+02:00\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "683602e0-336b-5aed-9c80-88940b7a7128",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "My upcoming bookings",
+      "url": "{{baseUrl}}/api/bookings",
+      "method": "GET",
+      "sortNum": 270000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "a41dbfb6-ad95-5d78-8263-03e4d94c3862",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "One of my bookings",
+      "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+      "method": "GET",
+      "sortNum": 280000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "9b902b2f-91aa-59b7-a1f5-00c2aee3c5fd",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Change my booking's note",
+      "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+      "method": "PATCH",
+      "sortNum": 290000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"note\": \"Bringing a friend next time\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "ad294f5a-fd48-5b94-acf2-9ceb7b869a52",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Cancel my class booking -> 204",
+      "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+      "method": "DELETE",
+      "sortNum": 300000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "204"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "e6cd2ee1-946a-51b3-a2ee-f02e6f966175",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "fa6e6e73-46f5-5bd2-a215-672f1c442c18",
+      "name": "Cancel it again -> 400",
+      "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+      "method": "DELETE",
+      "sortNum": 310000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "400"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{aliceToken}}"
+      }
+    },
+    {
+      "_id": "b4c3160e-30e8-5715-9f80-9f03eff3d4cd",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "00d92031-9d77-5017-b695-c06491192f90",
+      "name": "Bob reads Alice's PT booking -> 404",
+      "url": "{{baseUrl}}/api/bookings/{{ptBookingId}}",
+      "method": "GET",
+      "sortNum": 320000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "404"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{bobToken}}"
+      }
+    },
+    {
+      "_id": "733d1c7f-cdda-5bd8-9ea9-973975a8b8b7",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "00d92031-9d77-5017-b695-c06491192f90",
+      "name": "Bob changes Alice's note -> 404",
+      "url": "{{baseUrl}}/api/bookings/{{ptBookingId}}",
+      "method": "PATCH",
+      "sortNum": 330000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "404"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"note\": \"hacked\"\n}",
+        "form": []
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{bobToken}}"
+      }
+    },
+    {
+      "_id": "1a4eab17-7b06-56d8-bd2b-144003c35ca8",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "00d92031-9d77-5017-b695-c06491192f90",
+      "name": "Bob cancels Alice's booking -> 404",
+      "url": "{{baseUrl}}/api/bookings/{{ptBookingId}}",
+      "method": "DELETE",
+      "sortNum": 340000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "404"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{bobToken}}"
+      }
+    },
+    {
+      "_id": "fd381324-cf23-5789-b6ec-554e56dd4d13",
+      "colId": "81f8a9e4-f3e1-5f24-9a8c-9c08b3b859ac",
+      "containerId": "00d92031-9d77-5017-b695-c06491192f90",
+      "name": "Bob's own bookings (none)",
+      "url": "{{baseUrl}}/api/bookings",
+      "method": "GET",
+      "sortNum": 350000,
+      "created": "2026-11-14T22:00:00.000Z",
+      "modified": "2026-11-14T22:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{bobToken}}"
+      }
+    }
+  ],
+  "settings": {}
+}

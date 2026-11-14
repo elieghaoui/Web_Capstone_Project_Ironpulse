@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import PageTransition from '../components/PageTransition.jsx';
 import { Loader, ErrorMessage } from '../components/Status.jsx';
 import { useApi } from '../hooks/useApi.js';
@@ -20,14 +19,7 @@ export default function Trainers() {
         {trainers && (
           <div className="trainers-grid">
             {trainers.map((t, i) => (
-              <motion.div
-                key={t._id}
-                className="flip-card"
-                tabIndex={0}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-              >
+              <div key={t._id} className="flip-card pop-in" tabIndex={0} style={{ animationDelay: `${i * 100}ms` }}>
                 <div className="flip-inner">
                   <div className="flip-front">
                     <div className="avatar">{initials(t.name)}</div>
@@ -40,7 +32,7 @@ export default function Trainers() {
                     <Link to={`/trainers/${t._id}`} className="btn btn-primary">View profile</Link>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

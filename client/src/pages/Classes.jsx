@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import PageTransition from '../components/PageTransition.jsx';
 import { Loader, ErrorMessage } from '../components/Status.jsx';
 import { useApi } from '../hooks/useApi.js';
@@ -44,8 +43,7 @@ export default function Classes() {
               onClick={() => setCategory(c)}
               aria-pressed={c === category}
             >
-              {c === category && <motion.span layoutId="chip-bg" className="chip-bg" />}
-              <span>{c}</span>
+              {c}
             </button>
           ))}
         </div>
@@ -54,53 +52,41 @@ export default function Classes() {
         {error && <ErrorMessage message={error.message} />}
         {classes && classes.length === 0 && <p className="lead">No upcoming classes for this type.</p>}
 
-        <AnimatePresence mode="popLayout">
-          {classes &&
-            groupByDay(classes).map(([day, list]) => (
-              <motion.div
-                key={`${category}-${day}`}
-                className="day-group"
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-              >
-                <h2 className="day-title">{day}</h2>
-                {list.map((c) => {
-                  const start = new Date(c.startsAt);
-                  const full = c.spotsLeft <= 0;
-                  const fill = ((c.capacity - c.spotsLeft) / c.capacity) * 100;
-                  return (
-                    <motion.article key={c._id} className="class-row" whileHover={{ x: 6 }}>
-                      <div className="class-time">{formatTime(start)}</div>
-                      <div className="class-info">
-                        <h3>{c.title}</h3>
-                        <p className="muted">
-                          {c.durationMin} min · {c.room} · with {c.trainer?.name ?? 'TBA'}
-                        </p>
-                        <div className="spots-bar" aria-hidden="true">
-                          <motion.span
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${fill}%` }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8 }}
-                          />
-                        </div>
+        {classes &&
+          groupByDay(classes).map(([day, list], i) => (
+            <div key={`${category}-${day}`} className="day-group slide-in" style={{ animationDelay: `${i * 80}ms` }}>
+              <h2 className="day-title">{day}</h2>
+              {list.map((c) => {
+                const start = new Date(c.startsAt);
+                const full = c.spotsLeft <= 0;
+                const fill = (c.capacity - c.spotsLeft) / c.capacity; // 0 to 1
+                return (
+                  <article key={c._id} className="class-row">
+                    <div className="class-time">{formatTime(start)}</div>
+                    <div className="class-info">
+                      <h3>{c.title}</h3>
+                      <p className="muted">
+                        {c.durationMin} min · {c.room} · with {c.trainerId?.name ?? 'TBA'}
+                      </p>
+                      {/* scaleX instead of width: lecture 6, animate transform only */}
+                      <div className="spots-bar" aria-hidden="true">
+                        <span style={{ '--fill': fill }} />
                       </div>
-                      <div className="class-action">
-                        <span className={full ? 'spots full' : 'spots'}>
-                          {full ? 'Full' : `${c.spotsLeft} spots left`}
-                        </span>
-                        {/* Milestone 3: POST /api/bookings */}
-                        <button type="button" className="btn btn-primary" disabled>
-                          Book
-                        </button>
-                      </div>
-                    </motion.article>
-                  );
-                })}
-              </motion.div>
-            ))}
-        </AnimatePresence>
+                    </div>
+                    <div className="class-action">
+                      <span className={full ? 'spots full' : 'spots'}>
+                        {full ? 'Full' : `${c.spotsLeft} spots left`}
+                      </span>
+                      {/* Milestone 3: POST /api/bookings */}
+                      <button type="button" className="btn btn-primary" disabled>
+                        Book
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ))}
       </section>
     </PageTransition>
   );

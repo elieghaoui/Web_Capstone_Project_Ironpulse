@@ -13,10 +13,13 @@ export function errorHandler(err, req, res, next) {
     return res.status(400).json({ error: 'Invalid input', details });
   }
   if (err instanceof mongoose.Error.CastError) {
-    return res.status(404).json({ error: 'Not found' });
+    return res.status(400).json({ error: 'Invalid id' }); // lecture 18: malformed id = 400
   }
   if (err?.code === 11000) {
     return res.status(409).json({ error: 'Already exists' });
+  }
+  if (err?.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'Request body too large' });
   }
   if (err?.type === 'entity.parse.failed') {
     return res.status(400).json({ error: 'Malformed JSON' });

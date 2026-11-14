@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import PageTransition from '../components/PageTransition.jsx';
 import { Loader, ErrorMessage } from '../components/Status.jsx';
 import { useApi } from '../hooks/useApi.js';
@@ -6,7 +5,7 @@ import { useApi } from '../hooks/useApi.js';
 function describeCount(n, word) {
   if (n === null || n === undefined) return `Unlimited ${word}`;
   if (n === 0) return `No ${word}`;
-  return `${n} ${word} / month`;
+  return `${n} ${word} / 30 days`;
 }
 
 export default function Plans() {
@@ -24,13 +23,10 @@ export default function Plans() {
         {plans && (
           <div className="plans-grid">
             {plans.map((plan, i) => (
-              <motion.article
+              <article
                 key={plan._id}
-                className={plan.name === 'Elite' ? 'plan-card featured' : 'plan-card'}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                whileHover={{ y: -10, scale: 1.02 }}
+                className={plan.name === 'Elite' ? 'plan-card featured pop-in' : 'plan-card pop-in'}
+                style={{ animationDelay: `${i * 100}ms` }}
               >
                 {plan.name === 'Elite' && <span className="badge">Most popular</span>}
                 <h2>{plan.name}</h2>
@@ -44,17 +40,11 @@ export default function Plans() {
                     <li key={perk}>{perk}</li>
                   ))}
                 </ul>
-                {/* Milestone 3: POST /api/me/plan */}
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled
-                  title="Coming soon"
-                  aria-label={`Choose the ${plan.name} plan`}
-                >
+                {/* Milestone 3: PUT /api/me/plan */}
+                <button type="button" className="btn btn-primary" disabled title="Coming soon" aria-label={`Choose the ${plan.name} plan`}>
                   Choose plan
                 </button>
-              </motion.article>
+              </article>
             ))}
           </div>
         )}

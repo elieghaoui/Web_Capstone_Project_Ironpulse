@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../auth/AuthContext.jsx';
 
 const links = [
@@ -38,15 +37,11 @@ export default function Navbar() {
         IRON<span>PULSE</span>
       </Link>
 
+      {/* NavLink adds the "active" class; CSS draws the animated underline */}
       <nav className="nav-desktop" aria-label="Main">
         {links.map((l) => (
           <NavLink key={l.to} to={l.to} end={l.to === '/'} className="nav-link">
-            {({ isActive }) => (
-              <>
-                {l.label}
-                {isActive && <motion.span layoutId="nav-underline" className="nav-underline" />}
-              </>
-            )}
+            {l.label}
           </NavLink>
         ))}
       </nav>
@@ -62,25 +57,15 @@ export default function Navbar() {
         <span className={open ? 'bar open' : 'bar'} />
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.nav
-            className="nav-mobile"
-            aria-label="Mobile"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.25 }}
-          >
-            {links.map((l) => (
-              <NavLink key={l.to} to={l.to} end={l.to === '/'} onClick={close} className="nav-link">
-                {l.label}
-              </NavLink>
-            ))}
-            {accountLinks}
-          </motion.nav>
-        )}
-      </AnimatePresence>
+      {/* Always rendered; the "open" class slides it in with a CSS transition */}
+      <nav className={open ? 'nav-mobile open' : 'nav-mobile'} aria-label="Mobile" aria-hidden={!open}>
+        {links.map((l) => (
+          <NavLink key={l.to} to={l.to} end={l.to === '/'} onClick={close} className="nav-link" tabIndex={open ? 0 : -1}>
+            {l.label}
+          </NavLink>
+        ))}
+        {open && accountLinks}
+      </nav>
     </header>
   );
 }

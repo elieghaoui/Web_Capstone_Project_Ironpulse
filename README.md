@@ -1,8 +1,19 @@
 # IRONPULSE Gym
 
-A full-stack web app for a fictional gym. Members choose a membership plan, book group classes with limited spots and book sessions with personal trainers. Staff manage everything from an admin panel.
+A full-stack web app for IRONPULSE, a gym in Beirut. Members choose a membership plan, book group classes with limited spots and book 1-hour sessions with personal trainers. Staff manage plans, trainers, classes and bookings from an admin panel.
 
 **Team:** Adam Bou Ghosn, Elie El Ghaoui · Web Programming capstone
+
+## Features
+
+- **Accounts:** sign up, log in, log out; members and admins (bcrypt + JWT).
+- **Membership plans:** five plans (Basic to Athlete). Each plan includes a number of group classes and PT sessions per 30-day period.
+- **Class booking:** weekly schedule filtered by type, live "spots left", no double booking, full classes refused.
+- **Personal training:** trainer profiles, free 1-hour slots inside each trainer's hours (Beirut time), no overlapping sessions.
+- **My bookings:** list, add a note ("knee injury, go easy"), cancel up to 12 hours before (the credit comes back).
+- **Admin:** create, edit and delete plans, trainers and classes; see every booking.
+- **Beyond CRUD:** all booking rules (capacity, plan limits per 30-day period, trainer hours, cancellation window) are checked on the server.
+- **Design:** dark, animated UI built with CSS transitions and keyframes; responsive on phone and desktop.
 
 ## Design (Milestone 1)
 
@@ -13,33 +24,54 @@ A full-stack web app for a fictional gym. Members choose a membership plan, book
 
 | Layer | Choice |
 | --- | --- |
-| Front end | React + Vite, React Router, Framer Motion, plain CSS |
-| Back end | Node.js 20+ and Express (REST API under `/api`) |
+| Front end | React + Vite, React Router, plain CSS (design tokens, transitions, keyframes) |
+| Back end | Node.js 20+ and Express 5 (REST API under `/api`) |
 | Database | MongoDB Atlas with Mongoose |
 | Auth | bcrypt password hashing + JWT (1 hour), `requireAuth` / `requireAdmin` middleware |
+| Validation & security | zod, helmet, express-rate-limit, Mongoose `sanitizeFilter` |
+| API testing | Thunder Client collection in `docs/api/` |
+
+## Architecture
+
+```
+ React (Vite, :5173)                 Express API (:3000)                          MongoDB Atlas
+ ┌────────────────────┐   fetch   ┌───────────────────────────────────────┐   Mongoose   ┌──────────────┐
+ │ pages / components │ ────────► │ logger → helmet → cors → express.json │ ───────────► │ users        │
+ │ useApi (hook)      │  Bearer   │ → rate limits → router                │              │ plans        │
+ │ api/client.js      │   token   │ → requireAuth / requireAdmin          │ ◄─────────── │ trainers     │
+ │ AuthContext        │ ◄──────── │ → validate (zod) → route handler      │              │ gymclasses   │
+ └────────────────────┘   JSON    │ → errorHandler (JSON errors)          │              │ bookings     │
+                                  └───────────────────────────────────────┘              └──────────────┘
+```
+
+- The browser only talks to the API; only the API talks to the database.
+- The login token is kept in `localStorage` and sent as `Authorization: Bearer <token>` by `api/client.js` on every request. A 401 logs the user out.
+- Every private query is filtered by the logged-in user (`userId: req.userId`).
 
 ## Project structure
 
 ```
 ironpulse/
-├── docs/                   wireframes + database schema (Milestone 1)
+├── docs/                   wireframes.png, schema.md, api/ (Thunder Client collection)
+├── SECURITY.md             security audit (lecture 21)
 ├── client/                 React app (Vite)
 │   └── src/
 │       ├── api/client.js   apiFetch: base URL, token header, errors, 401 -> auth:expired
-│       ├── hooks/useApi.js data / loading / error / reload for any GET route
+│       ├── hooks/          useApi (data / loading / error / reload), useReveal (scroll animations)
 │       ├── auth/           AuthContext (token in localStorage + state, login, signup, logout)
 │       ├── components/     Navbar, Footer, Reveal, PageTransition, ProtectedRoute, Status
 │       ├── pages/          Home, Plans, Classes, Trainers, TrainerProfile, Login, Signup, Dashboard, Admin
-│       └── styles/         global.css (dark theme, animations)
+│       └── styles/         global.css (design tokens, components, animations)
 └── server/                 Express API
-    ├── src/
-    │   ├── models/         User, Plan, Trainer, GymClass, Booking
-    │   ├── routes/         auth.js, public.js
-    │   ├── middleware/     requireAuth, requireAdmin, errorHandler
-    │   ├── auth/token.js   sign / verify JWTs
-    │   ├── app.js          builds the Express app
-    │   ├── server.js       connects to MongoDB and starts listening
-    │   └── seed.js         fills the database with plans, trainers and classes
+    ├── server.js           connects to MongoDB, then listens
+    ├── app.js              builds the app: middleware + routes (exported for testing)
+    ├── config.js           crashes at startup if a secret is missing
+    ├── seed.js             fills the database with plans, trainers and classes
+    ├── models/             User, Plan, Trainer, GymClass, Booking
+    ├── routes/             auth, me, plans, trainers, classes, bookings
+    ├── middleware/         logger, requireAuth / requireAdmin, validate (zod rules), errorHandler
+    ├── auth/token.js       sign / verify JWTs
+    └── utils/              time.js (trainer hours in Beirut time), planCycle.js (30-day plan limits)
 ```
 
 ## Setup
@@ -57,8 +89,8 @@ cp .env.example .env      # Windows: copy .env.example .env
 Open `server/.env` and fill in `MONGODB_URI` (from Atlas), a long random `JWT_SECRET`, `CLIENT_ORIGIN` and an `ADMIN_PASSWORD`. Then:
 
 ```bash
-npm run seed    # adds plans, trainers, 2 weeks of classes and the admin account
-npm run dev     # API on http://localhost:3000
+npm run seed    # resets plans, trainers, 2 weeks of classes, bookings and member accounts; keeps/creates the admin
+npm run dev     # API on http://localhost:3000 (node --watch restarts it on every save)
 ```
 
 ### 2. Front end (second terminal)
@@ -84,37 +116,100 @@ Every `VITE_` value ships to the browser, so secrets only ever go in `server/.en
 
 ## API routes
 
-| Method | Route | Access | Status |
-| --- | --- | --- | --- |
-| GET | `/api/health` | Public | Done |
-| POST | `/api/auth/signup` | Public | Done |
-| POST | `/api/auth/login` | Public | Done |
-| GET | `/api/auth/me` | Member | Done |
-| GET | `/api/plans`, `/api/trainers`, `/api/trainers/:id` | Public | Done |
-| GET | `/api/classes?category=Yoga` | Public | Done (includes `spotsLeft`) |
-| POST | `/api/me/plan` | Member | Milestone 2 |
-| GET | `/api/me/bookings` | Member | Milestone 2 |
-| POST | `/api/bookings` | Member | Milestone 2 |
-| DELETE | `/api/bookings/:id` | Member (owner) | Milestone 2 |
-| POST, PUT, DELETE | `/api/classes`, `/api/trainers`, `/api/plans` | Admin | Milestone 2 |
-| GET | `/api/admin/bookings` | Admin | Milestone 2 |
+| Method | Route | Access | Success | What it does |
+| --- | --- | --- | --- | --- |
+| GET | `/api/health` | Public | 200 | `{ "ok": true }` |
+| POST | `/api/auth/signup` | Public | 201 | Create a member account, returns `{ token, user }` |
+| POST | `/api/auth/login` | Public (5 wrong tries / 15 min) | 200 | Returns `{ token, user }` |
+| GET | `/api/auth/me` | Logged in | 200 | Who am I (with my plan) |
+| GET | `/api/me/plan` | Logged in | 200 | My plan, current 30-day period, classes and PT sessions used |
+| PUT | `/api/me/plan` | Logged in | 200 | Choose or switch plan (starts a new 30-day period) |
+| GET | `/api/plans`, `/api/plans/:id` | Public | 200 | Plans |
+| POST · PATCH · DELETE | `/api/plans`, `/api/plans/:id` | Admin | 201 · 200 · 204 | Manage plans |
+| GET | `/api/trainers`, `/api/trainers/:id` | Public | 200 | Trainers |
+| GET | `/api/trainers/:id/slots?days=14` | Public | 200 | Free 1-hour PT start times |
+| POST · PATCH · DELETE | `/api/trainers`, `/api/trainers/:id` | Admin | 201 · 200 · 204 | Manage trainers |
+| GET | `/api/classes?category=Yoga`, `/api/classes/:id` | Public | 200 | Upcoming classes with `spotsLeft` |
+| POST · PATCH · DELETE | `/api/classes`, `/api/classes/:id` | Admin | 201 · 200 · 204 | Manage classes |
+| GET | `/api/bookings` | Logged in | 200 | Members: my upcoming bookings · Admin: all (`?status=booked&type=class`) |
+| POST | `/api/bookings` | Logged in | 201 | Book a class or a PT session |
+| GET · PATCH · DELETE | `/api/bookings/:id` | Owner | 200 · 200 · 204 | Read, change the note, cancel |
 
-Status codes: 400 bad input, 401 not logged in, 403 not an admin, 404 not found or not yours, 409 already exists / class full.
+Status codes: 200 OK, 201 created, 204 done (no body), 400 bad input or malformed id, 401 not logged in, 403 not allowed (admins only, plan limit), 404 not found or not yours, 409 conflict (full, already booked, still in use), 413 body too large, 429 too many login attempts.
+
+### Example bodies
+
+```jsonc
+// POST /api/auth/signup
+{ "name": "Alice Member", "email": "alice@example.com", "password": "alicepass123" }
+
+// PUT /api/me/plan
+{ "planId": "6735f2c4b7a1d3f0c8e2a9b1" }
+
+// POST /api/bookings: a class
+{ "type": "class", "classId": "6735f2c4b7a1d3f0c8e2a9c7", "note": "First class!" }
+
+// POST /api/bookings: a 1-hour PT session (Beirut time, on the hour)
+{ "type": "pt", "trainerId": "6735f2c4b7a1d3f0c8e2a9b3", "startsAt": "2026-11-23T09:00:00+02:00" }
+
+// PATCH /api/bookings/:id
+{ "note": "Bringing a friend next time" }
+
+// POST /api/classes (admin)
+{ "title": "Sunrise Stretch", "category": "Mobility", "room": "Studio B",
+  "trainerId": "6735f2c4b7a1d3f0c8e2a9b3", "startsAt": "2030-01-05T08:00:00+02:00",
+  "durationMin": 30, "capacity": 15 }
+
+// POST /api/plans (admin)
+{ "name": "Student", "priceMonthly": 35, "classesPerMonth": 8, "ptSessionsPerMonth": 0,
+  "perks": ["Valid student ID required"] }
+
+// Errors always look like this:
+{ "error": "This class is full" }
+```
+
+### Booking rules (checked on the server)
+
+- Classes: the class must not have started, not be full, and not already be booked by you.
+- PT: 1 hour, starting on the hour, inside the trainer's weekly hours (Beirut time), and the slot must be free.
+- Plan limits: each plan includes a number of classes and PT sessions per **30-day period** starting the day you chose the plan (Basic: none; Elite and up: unlimited classes). No plan, or limit reached: 403.
+- Cancelling: up to **12 hours** before the start. The booking is kept as `cancelled` and no longer counts toward your limit.
+- Every booking query is filtered by the logged-in user: someone else's booking id gives **404**.
+- Admins can't delete a class with bookings, a trainer with classes or sessions, or a plan members are on (409).
+
+## Testing the API (Thunder Client)
+
+Every route can be tried without the front end, using the **Thunder Client** extension in VS Code. The requests are split into two collections because the free version allows 50 requests per collection:
+
+| File | Folders |
+| --- | --- |
+| `docs/api/thunder-collection_IRONPULSE-1-members.json` | 1 public routes · 2 accounts · 3 Alice's plan and bookings · 4 **Bob can't touch Alice's data** |
+| `docs/api/thunder-collection_IRONPULSE-2-admin-security.json` | 5 admin · 6 security checks |
+
+1. Run `npm run seed`, then start the API (`npm run dev` in `server/`).
+2. In Thunder Client: **Collections → ⋯ → Import** both collection files, and **Env → ⋯ → Import** `docs/api/thunder-environment_IRONPULSE-local.json`.
+3. Open the **IRONPULSE local** environment, check `baseUrl` (`http://localhost:3000`), `adminEmail`, `adminPassword` (your `ADMIN_PASSWORD`) and `forgedToken` (`abc.def.ghi`), and set it **active**.
+4. **Run All** on collection 1, then on collection 2 (it uses the tokens and ids that collection 1 saved). Every request checks its expected status code.
+
+The last request ("Wrong password") locks logins for 15 minutes after the 6th try; restart the API to reset it.
 
 ## Security
 
-- Passwords are hashed with bcrypt (cost 12) and the hash is never sent back.
-- Login gives the same error for a wrong email or a wrong password.
-- New accounts are always members; `role` is never read from the request.
-- Secrets live in `.env`, which is in `.gitignore`. Only `.env.example` is committed.
-- CORS only allows our front end (`CLIENT_ORIGIN`).
-- Mongoose validates every field; malformed JSON or bad ids return JSON errors instead of crashing.
+See **[SECURITY.md](SECURITY.md)** for our audit of the Session 21 checklist (attack, before, fix, after). In short:
+
+- Every request body is validated with **zod** (wrong type or shape: 400; unknown keys such as `role` or `userId` are dropped; `.max()` on every string).
+- `mongoose.set('sanitizeFilter', true)` blocks `$ne`-style NoSQL injection (our own `$gte` filters are wrapped in `mongoose.trusted`); query strings are validated too, and malformed ids get 400.
+- Ownership always comes from the token (`req.userId`), never from the request body; other members' bookings return 404.
+- Passwords hashed with bcrypt (cost 12); same error for a wrong email or a wrong password.
+- Rate limits: 5 wrong logins per 15 minutes, 300 requests per 15 minutes on `/api`; bodies capped at 10 kB.
+- `helmet()` sets secure headers and hides `X-Powered-By`; CORS only allows our front end.
+- Secrets live in `.env` (git-ignored); the API refuses to start without `MONGODB_URI` and `JWT_SECRET`.
 
 ## Milestones
 
 - [x] Proposal (Session 19)
 - [x] Milestone 1: scaffold, wireframes and schema (Session 20)
-- [ ] Milestone 2: auth + CRUD routes working (Session 21)
+- [x] Milestone 2: auth + CRUD routes working (Session 21)
 - [ ] Milestone 3: front end connected, booking works (Session 22)
 - [ ] Milestone 4: deployed (Session 23)
 - [ ] Final demo (Session 24)

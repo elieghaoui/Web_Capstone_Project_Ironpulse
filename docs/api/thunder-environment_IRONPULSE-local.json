@@ -1,0 +1,79 @@
+{
+  "client": "Thunder Client",
+  "clientName": "Thunder Client",
+  "environmentName": "IRONPULSE local",
+  "dateExported": "2026-11-14T19:00:00.000Z",
+  "version": "1.1",
+  "folder": "",
+  "_id": "89ee4c5d-4cb0-559a-8e4a-83916f817e32",
+  "data": [
+    {
+      "name": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "name": "adminEmail",
+      "value": "admin@ironpulse.test"
+    },
+    {
+      "name": "adminPassword",
+      "value": "PUT-YOUR-ADMIN_PASSWORD-HERE"
+    },
+    {
+      "name": "forgedToken",
+      "value": "abc.def.ghi"
+    },
+    {
+      "name": "aliceToken",
+      "value": ""
+    },
+    {
+      "name": "bobToken",
+      "value": ""
+    },
+    {
+      "name": "adminToken",
+      "value": ""
+    },
+    {
+      "name": "planId",
+      "value": ""
+    },
+    {
+      "name": "classId",
+      "value": ""
+    },
+    {
+      "name": "trainerId",
+      "value": ""
+    },
+    {
+      "name": "ptTime",
+      "value": ""
+    },
+    {
+      "name": "ptTime2",
+      "value": ""
+    },
+    {
+      "name": "bookingId",
+      "value": ""
+    },
+    {
+      "name": "ptBookingId",
+      "value": ""
+    },
+    {
+      "name": "newPlanId",
+      "value": ""
+    },
+    {
+      "name": "newTrainerId",
+      "value": ""
+    },
+    {
+      "name": "newClassId",
+      "value": ""
+    }
+  ]
+}

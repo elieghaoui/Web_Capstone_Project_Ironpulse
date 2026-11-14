@@ -4,28 +4,41 @@ import PageTransition from '../components/PageTransition.jsx';
 import { ErrorMessage } from '../components/Status.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 
+function validate(form) {
+  const errors = {};
+  if (!form.email.trim()) errors.email = 'Enter your email';
+  if (!form.password) errors.password = 'Enter your password';
+  return errors;
+}
+
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  function update(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
+    const found = validate(form);
+    setErrors(found);
+    setServerError('');
+    if (Object.keys(found).length) return;
+
     setBusy(true);
     try {
       const user = await login(form.email, form.password);
       const home = user.role === 'admin' ? '/admin' : '/dashboard';
       navigate(location.state?.from || home, { replace: true });
     } catch (err) {
-      setError(err.message);
+      setServerError(err.message); // "Invalid email or password"
     } finally {
       setBusy(false);
     }
@@ -34,24 +47,19 @@ export default function Login() {
   return (
     <PageTransition>
       <section className="section auth">
-        <form className="auth-card" onSubmit={handleSubmit}>
+        <form className="auth-card" onSubmit={handleSubmit} noValidate>
           <h1>Welcome back</h1>
           <label>
             Email
-            <input name="email" type="email" autoComplete="email" required value={form.email} onChange={update} />
+            <input name="email" type="email" autoComplete="email" value={form.email} onChange={handleChange} aria-invalid={!!errors.email} />
+            {errors.email && <span className="field-error">{errors.email}</span>}
           </label>
           <label>
             Password
-            <input
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={form.password}
-              onChange={update}
-            />
+            <input name="password" type="password" autoComplete="current-password" value={form.password} onChange={handleChange} aria-invalid={!!errors.password} />
+            {errors.password && <span className="field-error">{errors.password}</span>}
           </label>
-          {error && <ErrorMessage message={error} />}
+          {serverError && <ErrorMessage message={serverError} />}
           <button type="submit" className="btn btn-primary btn-lg" disabled={busy}>
             {busy ? 'Logging in…' : 'Log in'}
           </button>

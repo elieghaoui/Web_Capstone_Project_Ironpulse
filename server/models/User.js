@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
     // Never store the real password: only the bcrypt hash.
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ['member', 'admin'], default: 'member' },
-    plan: { type: mongoose.Schema.Types.ObjectId, ref: 'Plan', default: null },
+    planId: { type: mongoose.Schema.Types.ObjectId, ref: 'Plan', default: null },
     planStartedAt: { type: Date, default: null },
   },
   { timestamps: true }

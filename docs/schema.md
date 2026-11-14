@@ -5,11 +5,11 @@ Five collections. A field marked **→ ref** stores the `_id` of a document in a
 
 ```mermaid
 erDiagram
-    USERS }o--o| PLANS : "plan → ref"
-    BOOKINGS }o--|| USERS : "user → ref"
-    BOOKINGS }o--o| GYMCLASSES : "gymClass → ref (class booking)"
-    BOOKINGS }o--o| TRAINERS : "trainer → ref (PT booking)"
-    GYMCLASSES }o--|| TRAINERS : "trainer → ref"
+    USERS }o--o| PLANS : "planId → ref"
+    BOOKINGS }o--|| USERS : "userId → ref"
+    BOOKINGS }o--o| GYMCLASSES : "classId → ref (class booking)"
+    BOOKINGS }o--o| TRAINERS : "trainerId → ref (PT booking)"
+    GYMCLASSES }o--|| TRAINERS : "trainerId → ref"
 ```
 
 Every document also gets `_id` (ObjectId) and `createdAt` / `updatedAt` (Date) automatically.
@@ -22,7 +22,7 @@ Every document also gets `_id` (ObjectId) and `createdAt` / `updatedAt` (Date) a
 | `email` | String | required, **unique**, lowercase, must look like an email |
 | `passwordHash` | String | required; bcrypt hash, never the real password, never sent to the client |
 | `role` | String | `member` or `admin`, default `member` |
-| `plan` | ObjectId **→ ref `plans`** | the member's current plan, `null` until one is chosen |
+| `planId` | ObjectId **→ ref `plans`** | the member's current plan, `null` until one is chosen |
 | `planStartedAt` | Date | when the current plan started, `null` by default |
 
 ## plans
@@ -56,7 +56,7 @@ One document per scheduled session, e.g. "HIIT Burn, Monday 18:00".
 | `title` | String | required |
 | `category` | String | one of HIIT, Cycling, Yoga, Pilates, Boxing, Strength, Mobility |
 | `room` | String | default "Studio A" |
-| `trainer` | ObjectId **→ ref `trainers`** | required: who teaches it |
+| `trainerId` | ObjectId **→ ref `trainers`** | required: who teaches it |
 | `startsAt` | Date | required |
 | `durationMin` | Number | 15–180 |
 | `capacity` | Number | ≥ 1; spots left = capacity − active bookings |
@@ -67,25 +67,26 @@ A booking is either a spot in a class (`type: "class"`) or a 1-hour session with
 
 | Field | Type | Rules |
 | --- | --- | --- |
-| `user` | ObjectId **→ ref `users`** | required: always taken from the login token, never from the request |
+| `userId` | ObjectId **→ ref `users`** | required: always taken from the login token, never from the request |
 | `type` | String | `class` or `pt` |
-| `gymClass` | ObjectId **→ ref `gymclasses`** | set when `type` is `class` |
-| `trainer` | ObjectId **→ ref `trainers`** | set when `type` is `pt` |
+| `classId` | ObjectId **→ ref `gymclasses`** | set when `type` is `class` |
+| `trainerId` | ObjectId **→ ref `trainers`** | set when `type` is `pt` |
 | `startsAt` | Date | required |
 | `status` | String | `booked` or `cancelled`, default `booked` |
+| `note` | String | optional, max 300, e.g. "knee injury, go easy"; the only field a member can edit |
 
 Indexes that enforce the booking rules:
-- unique (`user`, `gymClass`) for active class bookings: a member can't book the same class twice;
-- unique (`trainer`, `startsAt`) for active PT bookings: a trainer can't be booked twice at the same time.
+- unique (`userId`, `classId`) for active class bookings: a member can't book the same class twice;
+- unique (`trainerId`, `startsAt`) for active PT bookings: a trainer can't be booked twice at the same time.
 
 ## Where each screen's data lives
 
 | Screen | Reads | Writes |
 | --- | --- | --- |
 | Home | (static content) | none |
-| Plans | `plans` | `users.plan` when a plan is chosen |
+| Plans | `plans` | `users.planId` when a plan is chosen |
 | Classes | `gymclasses` + `trainers` (name), spots left counted from `bookings` | `bookings` (type class) |
 | Trainers / Trainer profile | `trainers` | `bookings` (type pt) |
 | Sign up / Log in | `users` | `users` (new account) |
-| My Dashboard | `users` + its `plan`, the member's `bookings` | cancel = `bookings.status` |
+| My Dashboard | `users` + its plan, the member's `bookings` | cancel = `bookings.status` |
 | Admin | all five collections | `plans`, `trainers`, `gymclasses` |

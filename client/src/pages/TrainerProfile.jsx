@@ -1,5 +1,4 @@
 import { Link, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import PageTransition from '../components/PageTransition.jsx';
 import { Loader, ErrorMessage } from '../components/Status.jsx';
 import { useApi } from '../hooks/useApi.js';
@@ -19,7 +18,7 @@ export default function TrainerProfile() {
         {error && <ErrorMessage message={error.message} />}
 
         {trainer && (
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="fade-up">
             <div className="profile-head">
               <div className="avatar large">{initials(trainer.name)}</div>
               <div>
@@ -39,11 +38,11 @@ export default function TrainerProfile() {
                 </li>
               ))}
             </ul>
-            {/* Milestone 3: pick a 1-hour slot and POST /api/bookings with type "pt" */}
+            {/* Milestone 3: GET /api/trainers/:id/slots, then POST /api/bookings with type "pt" */}
             <button type="button" className="btn btn-primary" disabled>
               Book a session
             </button>
-          </motion.div>
+          </div>
         )}
       </section>
     </PageTransition>

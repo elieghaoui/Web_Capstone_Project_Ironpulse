@@ -16,7 +16,7 @@ export default function Admin() {
         <h1 className="page-title">Admin panel</h1>
         <div className="grid-2">
           {sections.map((s, i) => (
-            <Reveal key={s.title} className="card" delay={i * 0.08}>
+            <Reveal key={s.title} className="card" delay={i * 80}>
               <h2>{s.title}</h2>
               <p className="muted">{s.text}</p>
             </Reveal>

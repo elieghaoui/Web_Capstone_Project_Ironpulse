@@ -1,9 +1,11 @@
 // Fills the database with IRONPULSE's plans, trainers, two weeks of classes
-// and one admin account. Run with: npm run seed  (it wipes those collections first)
+// and one admin account. Run with: npm run seed
+// It first wipes plans, trainers, classes, bookings AND member accounts
+// (the admin is kept), so every demo or Thunder Client run starts clean.
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
-import { connectDB } from './config/db.js';
+import { checkEnv } from './config.js';
 import { Plan } from './models/Plan.js';
 import { Trainer } from './models/Trainer.js';
 import { GymClass } from './models/GymClass.js';
@@ -67,16 +69,26 @@ function buildClasses(trainerIds, weeks = 2) {
       const [h, m] = time.split(':').map(Number);
       const startsAt = new Date(date);
       startsAt.setHours(h, m, 0, 0);
-      result.push({ title, category, durationMin, capacity, room, startsAt, trainer: trainerIds[trainerName] });
+      result.push({ title, category, durationMin, capacity, room, startsAt, trainerId: trainerIds[trainerName] });
     }
   }
   return result;
 }
 
 async function seed() {
-  await connectDB(process.env.MONGODB_URI);
+  checkEnv(['MONGODB_URI']);
+  await mongoose.connect(process.env.MONGODB_URI);
+  console.log('connected to MongoDB');
 
-  await Promise.all([Plan.deleteMany(), Trainer.deleteMany(), GymClass.deleteMany(), Booking.deleteMany()]);
+  await Promise.all([
+    Plan.deleteMany(),
+    Trainer.deleteMany(),
+    GymClass.deleteMany(),
+    Booking.deleteMany(),
+    User.deleteMany({ role: 'member' }),
+  ]);
+  // Make the database's indexes match the models (drops ones left from old field names).
+  await Promise.all([Plan, Trainer, GymClass, Booking, User].map((model) => model.syncIndexes()));
 
   await Plan.insertMany(plans);
   const savedTrainers = await Trainer.insertMany(trainers);
@@ -97,7 +109,7 @@ async function seed() {
     console.log('No admin created: set ADMIN_PASSWORD (8+ characters) in .env');
   }
 
-  console.log(`Seeded ${plans.length} plans, ${savedTrainers.length} trainers, ${classes.length} classes`);
+  console.log(`Seeded ${plans.length} plans, ${savedTrainers.length} trainers, ${classes.length} classes (member accounts removed)`);
   await mongoose.disconnect();
 }
 
