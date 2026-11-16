@@ -29,6 +29,7 @@ A full-stack web app for IRONPULSE, a gym in Beirut. Members choose a membership
 | Database | MongoDB Atlas with Mongoose |
 | Auth | bcrypt password hashing + JWT (1 hour), `requireAuth` / `requireAdmin` middleware |
 | Validation & security | zod, helmet, express-rate-limit, Mongoose `sanitizeFilter` |
+| Tests | Vitest + Supertest (API), Vitest + React Testing Library + jsdom (components) |
 | API testing | Thunder Client collection in `docs/api/` |
 
 ## Architecture
@@ -54,12 +55,14 @@ A full-stack web app for IRONPULSE, a gym in Beirut. Members choose a membership
 ironpulse/
 ├── docs/                   wireframes.png, schema.md, api/ (Thunder Client collection)
 ├── SECURITY.md             security audit (lecture 21)
+├── PERFORMANCE.md          Lighthouse before / fix / after (lecture 22)
 ├── client/                 React app (Vite)
 │   └── src/
 │       ├── api/client.js   apiFetch: base URL, token header, errors, 401 -> auth:expired
 │       ├── hooks/          useApi (data / loading / error / reload), useReveal (scroll animations)
 │       ├── auth/           AuthContext (token in localStorage + state, login, signup, logout)
-│       ├── components/     Navbar, Footer, Reveal, PageTransition, ProtectedRoute, Status
+│       ├── components/     Navbar, Footer, Reveal, PageTransition, ProtectedRoute, Status,
+│       │                   PlanCard, ClassRow, SlotPicker, BookingCard (+ .test.jsx files)
 │       ├── pages/          Home, Plans, Classes, Trainers, TrainerProfile, Login, Signup, Dashboard, Admin
 │       └── styles/         global.css (design tokens, components, animations)
 └── server/                 Express API
@@ -71,6 +74,7 @@ ironpulse/
     ├── routes/             auth, me, plans, trainers, classes, bookings
     ├── middleware/         logger, requireAuth / requireAdmin, validate (zod rules), errorHandler
     ├── auth/token.js       sign / verify JWTs
+    ├── tests/              api.test.js (Supertest)
     └── utils/              time.js (trainer hours in Beirut time), planCycle.js (30-day plan limits)
 ```
 
@@ -177,6 +181,20 @@ Status codes: 200 OK, 201 created, 204 done (no body), 400 bad input or malforme
 - Every booking query is filtered by the logged-in user: someone else's booking id gives **404**.
 - Admins can't delete a class with bookings, a trainer with classes or sessions, or a plan members are on (409).
 
+## Automated tests (Session 22)
+
+```bash
+cd server && npm test   # 7 tests
+cd client && npm test   # 6 tests
+```
+
+- **API** (`server/tests/api.test.js`, Vitest + Supertest against `app.js`, no database needed): missing or forged token → 401, unknown booking type → 400, malformed id → 400, short password on signup → 400, `{"$ne": null}` login injection → 400, member creating a plan → 403.
+- **Components** (`client/src/components/*.test.jsx`, Vitest + React Testing Library + user-event): `ClassRow` shows the class, calls `onBook` with the class id, disables *Book* when the class is full and shows *Booked ✓* instead of a button; `BookingCard` asks for confirmation before cancelling and hides *Cancel* less than 12 hours before the start.
+- We checked the tests can fail: changing `onBook(gymClass._id)` to `onBook('oops')` in `ClassRow.jsx` makes "calls onBook with the class id" fail.
+- `npm run test:watch` re-runs the tests on every save.
+
+See **[PERFORMANCE.md](PERFORMANCE.md)** for the Lighthouse audit (before, fix, after).
+
 ## Testing the API (Thunder Client)
 
 Every route can be tried without the front end, using the **Thunder Client** extension in VS Code. The requests are split into two collections because the free version allows 50 requests per collection:
@@ -210,6 +228,6 @@ See **[SECURITY.md](SECURITY.md)** for our audit of the Session 21 checklist (at
 - [x] Proposal (Session 19)
 - [x] Milestone 1: scaffold, wireframes and schema (Session 20)
 - [x] Milestone 2: auth + CRUD routes working (Session 21)
-- [ ] Milestone 3: front end connected, booking works (Session 22)
+- [x] Milestone 3: front end connected, booking works, tests and performance (Session 22)
 - [ ] Milestone 4: deployed (Session 23)
 - [ ] Final demo (Session 24)

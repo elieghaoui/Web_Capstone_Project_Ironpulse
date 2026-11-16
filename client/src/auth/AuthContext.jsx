@@ -38,6 +38,11 @@ export function AuthProvider({ children }) {
     saveToken(null);
   }
 
+  // Ask the server again who we are, e.g. after choosing a new plan.
+  async function refreshUser() {
+    setUser(await apiFetch('/api/auth/me'));
+  }
+
   // apiFetch fires 'auth:expired' when the server answers 401 -> log out.
   useEffect(() => {
     window.addEventListener('auth:expired', logout);
@@ -58,6 +63,6 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, [token]);
 
-  const value = { token, user, loading, login, signup, logout };
+  const value = { token, user, loading, login, signup, logout, refreshUser };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

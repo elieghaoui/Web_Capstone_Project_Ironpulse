@@ -7,3 +7,27 @@ export function initials(name) {
     .slice(0, 2)
     .toUpperCase();
 }
+
+// Dates arrive from the API as ISO strings, e.g. "2026-11-20T07:00:00.000Z".
+export function formatDay(date) {
+  return new Date(date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+}
+
+export function formatTime(date) {
+  return new Date(date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+export function formatDate(date) {
+  return new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Groups items by calendar day: [["Monday 10 Nov", [...]], ...]
+export function groupByDay(items, getDate) {
+  const groups = new Map();
+  for (const item of items) {
+    const day = formatDay(getDate(item));
+    if (!groups.has(day)) groups.set(day, []);
+    groups.get(day).push(item);
+  }
+  return [...groups.entries()];
+}

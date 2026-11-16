@@ -28,4 +28,10 @@ bookingSchema.index(
   { unique: true, partialFilterExpression: { type: 'pt', status: 'booked' } }
 );
 
+// Indexes (lecture 22) for the queries we run most:
+// a member's own bookings sorted by date, and the plan-limit count (userId + startsAt range).
+bookingSchema.index({ userId: 1, startsAt: 1 });
+// "spots left" on each class counts the active bookings per class.
+bookingSchema.index({ classId: 1, status: 1 });
+
 export const Booking = mongoose.model('Booking', bookingSchema);

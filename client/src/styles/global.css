@@ -14,7 +14,8 @@
   --border: #2a2a31;
   --text: #f4f4f5; /* body copy */
   --text-muted: #9a9aa5;
-  --brand: #ff2e4d; /* links, buttons, highlights */
+  --brand: #ff2e4d; /* links, highlights, glow */
+  --brand-strong: #d61f3b; /* behind white text: 5.1:1 contrast (Lighthouse needs 4.5:1) */
   --brand-soft: rgba(255, 46, 77, 0.15);
   --success: #2ee59d; /* it worked */
   --danger: #ffb3bf; /* errors (light red: readable on dark) */
@@ -107,7 +108,7 @@ h3 {
 }
 
 .btn-primary {
-  background: var(--brand);
+  background: var(--brand-strong);
   color: #fff;
 }
 
@@ -529,7 +530,7 @@ h3 {
   right: var(--sp-3);
   padding: var(--sp-1) var(--sp-3);
   border-radius: var(--radius-pill);
-  background: var(--brand);
+  background: var(--brand-strong);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -562,8 +563,8 @@ h3 {
 
 .chip.active {
   color: #fff;
-  border-color: var(--brand);
-  background: var(--brand);
+  border-color: var(--brand-strong);
+  background: var(--brand-strong);
 }
 
 .day-group {
@@ -703,7 +704,7 @@ h3 {
   height: 96px;
   margin-bottom: var(--sp-3);
   border-radius: 50%;
-  background: var(--brand);
+  background: var(--brand-strong);
   font: 2.2rem var(--font-display);
 }
 
@@ -832,6 +833,205 @@ h3 {
   margin: var(--sp-1) 0;
 }
 
+/* ---------- Milestone 3: booking UI ---------- */
+
+/* Inline result next to the button that was used */
+.notice {
+  margin: var(--sp-2) 0 0;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  animation: fade-in var(--medium) ease-out both;
+}
+
+.notice.success {
+  color: var(--success);
+  background: rgba(46, 229, 157, 0.1);
+}
+
+.notice.error {
+  color: var(--danger);
+  background: var(--brand-soft);
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+.btn-small {
+  padding: var(--sp-1) var(--sp-3);
+  font-size: 0.85rem;
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--brand-soft);
+}
+
+.badge-success {
+  background: var(--success);
+  color: var(--surface);
+}
+
+.plan-card.current {
+  border-color: var(--success);
+}
+
+.booked {
+  color: var(--success);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Form fields outside the login card (note, PT form) */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.field input,
+.field textarea {
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: 1rem var(--font-body);
+  resize: vertical;
+  transition: border-color var(--fast) ease-out, box-shadow var(--fast) ease-out;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.field textarea[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+/* Trainer profile: free PT slots */
+.pt-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.pt-form .field {
+  width: 100%;
+}
+
+.slot-days {
+  display: grid;
+  gap: var(--sp-3);
+  width: 100%;
+}
+
+.slot-day h3 {
+  margin-bottom: var(--sp-2);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.slot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* Dashboard */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 2fr;
+  gap: var(--sp-4);
+  align-items: start;
+}
+
+.usage {
+  display: grid;
+  gap: var(--sp-3);
+  margin: var(--sp-3) 0;
+}
+
+.usage-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--sp-1) var(--sp-2);
+  font-size: 0.9rem;
+}
+
+.usage-row .spots-bar {
+  grid-column: 1 / -1;
+}
+
+.booking-list {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.booking-card {
+  padding: var(--sp-3);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  animation: slide-in var(--medium) var(--ease) both;
+}
+
+.booking-card p {
+  margin: var(--sp-1) 0;
+}
+
+.booking-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.booking-head h3 {
+  margin: 0;
+}
+
+.booking-note {
+  font-style: italic;
+}
+
+.booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.note-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.tag {
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 /* ---------- Entrance animations (keyframes, transform + opacity only) ---------- */
 .reveal {
   opacity: 0;
@@ -955,6 +1155,10 @@ h3 {
   .profile-head {
     flex-direction: column;
     text-align: center;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
   }
 }
 

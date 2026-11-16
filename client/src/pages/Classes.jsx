@@ -1,33 +1,46 @@
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageTransition from '../components/PageTransition.jsx';
+import ClassRow from '../components/ClassRow.jsx';
 import { Loader, ErrorMessage } from '../components/Status.jsx';
 import { useApi } from '../hooks/useApi.js';
+import { useAuth } from '../auth/AuthContext.jsx';
+import { apiFetch } from '../api/client.js';
+import { groupByDay } from '../utils.js';
 
 const categories = ['All', 'HIIT', 'Cycling', 'Yoga', 'Pilates', 'Boxing', 'Strength', 'Mobility'];
-
-function formatDay(date) {
-  return date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
-}
-
-function formatTime(date) {
-  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-}
-
-// Groups classes by calendar day: [["Monday 10 Nov", [...]], ...]
-function groupByDay(classes) {
-  const groups = new Map();
-  for (const c of classes) {
-    const day = formatDay(new Date(c.startsAt));
-    if (!groups.has(day)) groups.set(day, []);
-    groups.get(day).push(c);
-  }
-  return [...groups.entries()];
-}
 
 export default function Classes() {
   const [category, setCategory] = useState('All');
   const path = category === 'All' ? '/api/classes' : `/api/classes?category=${encodeURIComponent(category)}`;
-  const { data: classes, error, loading } = useApi(path);
+  const { data: classes, error, loading, reload } = useApi(path);
+
+  const { user } = useAuth();
+  // My bookings, only when logged in, so booked classes show "Booked ✓".
+  const { data: myBookings, reload: reloadMine } = useApi(user ? '/api/bookings' : null);
+  const bookedIds = new Set((myBookings ?? []).filter((b) => b.type === 'class').map((b) => b.classId?._id));
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [busyId, setBusyId] = useState(null);
+  const [notice, setNotice] = useState(null); // { classId, type, text }
+
+  async function bookClass(classId) {
+    if (!user) return navigate('/login', { state: { from: location.pathname } });
+
+    setBusyId(classId);
+    setNotice(null);
+    try {
+      await apiFetch('/api/bookings', { method: 'POST', body: JSON.stringify({ type: 'class', classId }) });
+      setNotice({ classId, type: 'success', text: 'Booked! You can see it on My Dashboard.' });
+      reload(); // spots left changes
+      reloadMine(); // shows "Booked ✓"
+    } catch (err) {
+      setNotice({ classId, type: 'error', text: err.message }); // e.g. "This class is full"
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
     <PageTransition>
@@ -48,43 +61,24 @@ export default function Classes() {
           ))}
         </div>
 
-        {loading && <Loader label="Loading classes" />}
+        {loading && !classes && <Loader label="Loading classes" />}
         {error && <ErrorMessage message={error.message} />}
         {classes && classes.length === 0 && <p className="lead">No upcoming classes for this type.</p>}
 
         {classes &&
-          groupByDay(classes).map(([day, list], i) => (
+          groupByDay(classes, (c) => c.startsAt).map(([day, list], i) => (
             <div key={`${category}-${day}`} className="day-group slide-in" style={{ animationDelay: `${i * 80}ms` }}>
               <h2 className="day-title">{day}</h2>
-              {list.map((c) => {
-                const start = new Date(c.startsAt);
-                const full = c.spotsLeft <= 0;
-                const fill = (c.capacity - c.spotsLeft) / c.capacity; // 0 to 1
-                return (
-                  <article key={c._id} className="class-row">
-                    <div className="class-time">{formatTime(start)}</div>
-                    <div className="class-info">
-                      <h3>{c.title}</h3>
-                      <p className="muted">
-                        {c.durationMin} min · {c.room} · with {c.trainerId?.name ?? 'TBA'}
-                      </p>
-                      {/* scaleX instead of width: lecture 6, animate transform only */}
-                      <div className="spots-bar" aria-hidden="true">
-                        <span style={{ '--fill': fill }} />
-                      </div>
-                    </div>
-                    <div className="class-action">
-                      <span className={full ? 'spots full' : 'spots'}>
-                        {full ? 'Full' : `${c.spotsLeft} spots left`}
-                      </span>
-                      {/* Milestone 3: POST /api/bookings */}
-                      <button type="button" className="btn btn-primary" disabled>
-                        Book
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
+              {list.map((c) => (
+                <ClassRow
+                  key={c._id}
+                  gymClass={c}
+                  booked={bookedIds.has(c._id)}
+                  busy={busyId === c._id}
+                  notice={notice?.classId === c._id ? notice : null}
+                  onBook={bookClass}
+                />
+              ))}
             </div>
           ))}
       </section>
