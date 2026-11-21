@@ -31,3 +31,16 @@ export function groupByDay(items, getDate) {
   }
   return [...groups.entries()];
 }
+
+// <input type="datetime-local"> works in the browser's local time without a time zone:
+// Date -> "2026-11-23T09:00" to fill the input...
+export function toInputDateTime(date) {
+  const d = new Date(date);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ...and back to a full ISO date with its time zone for the API.
+export function fromInputDateTime(value) {
+  return new Date(value).toISOString();
+}

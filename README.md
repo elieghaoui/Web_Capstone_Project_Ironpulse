@@ -71,6 +71,8 @@ ironpulse/
 │       ├── auth/           AuthContext (token in localStorage + state, login, signup, logout)
 │       ├── components/     Navbar, Footer, Reveal, PageTransition, ProtectedRoute, Status,
 │       │                   PlanCard, ClassRow, SlotPicker, BookingCard (+ .test.jsx files)
+│       │   └── admin/      ClassesAdmin, TrainersAdmin, PlansAdmin, BookingsAdmin,
+│       │                   HoursEditor, FilterGroup, ConfirmDelete (+ test)
 │       ├── pages/          Home, Plans, Classes, Trainers, TrainerProfile, Login, Signup, Dashboard, Admin
 │       └── styles/         global.css (design tokens, components, animations)
 └── server/                 Express API
@@ -193,11 +195,11 @@ Status codes: 200 OK, 201 created, 204 done (no body), 400 bad input or malforme
 
 ```bash
 cd server && npm test   # 7 tests
-cd client && npm test   # 6 tests
+cd client && npm test   # 8 tests
 ```
 
 - **API** (`server/tests/api.test.js`, Vitest + Supertest against `app.js`, no database needed): missing or forged token → 401, unknown booking type → 400, malformed id → 400, short password on signup → 400, `{"$ne": null}` login injection → 400, member creating a plan → 403.
-- **Components** (`client/src/components/*.test.jsx`, Vitest + React Testing Library + user-event): `ClassRow` shows the class, calls `onBook` with the class id, disables *Book* when the class is full and shows *Booked ✓* instead of a button; `BookingCard` asks for confirmation before cancelling and hides *Cancel* less than 12 hours before the start.
+- **Components** (`client/src/components/*.test.jsx`, Vitest + React Testing Library + user-event): `ClassRow` shows the class, calls `onBook` with the class id, disables *Book* when the class is full and shows *Booked ✓* instead of a button; `BookingCard` asks for confirmation before cancelling and hides *Cancel* less than 12 hours before the start; the admin `ConfirmDelete` button only deletes after the second click and shows the server's message when a delete is refused (409).
 - We checked the tests can fail: changing `onBook(gymClass._id)` to `onBook('oops')` in `ClassRow.jsx` makes "calls onBook with the class id" fail.
 - `npm run test:watch` re-runs the tests on every save.
 

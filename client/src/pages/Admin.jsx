@@ -1,26 +1,44 @@
+import { useState } from 'react';
 import PageTransition from '../components/PageTransition.jsx';
-import Reveal from '../components/Reveal.jsx';
+import ClassesAdmin from '../components/admin/ClassesAdmin.jsx';
+import TrainersAdmin from '../components/admin/TrainersAdmin.jsx';
+import PlansAdmin from '../components/admin/PlansAdmin.jsx';
+import BookingsAdmin from '../components/admin/BookingsAdmin.jsx';
 
-const sections = [
-  { title: 'Classes', text: 'Add, edit and remove classes from the timetable.' },
-  { title: 'Trainers', text: 'Manage coach profiles and PT availability.' },
-  { title: 'Plans', text: 'Change prices, limits and perks.' },
-  { title: 'Bookings', text: 'See who booked what and how full each class is.' },
+const tabs = [
+  { id: 'classes', label: 'Classes', Panel: ClassesAdmin },
+  { id: 'trainers', label: 'Trainers', Panel: TrainersAdmin },
+  { id: 'plans', label: 'Plans', Panel: PlansAdmin },
+  { id: 'bookings', label: 'Bookings', Panel: BookingsAdmin },
 ];
 
-// Milestone 2 adds the admin API routes, Milestone 3 connects these panels.
+// Admin panel: one page, the selected tab is state (lecture 14).
+// Only admins get here (ProtectedRoute adminOnly), and the API checks again on every write.
 export default function Admin() {
+  const [tab, setTab] = useState('classes');
+  const { Panel } = tabs.find((t) => t.id === tab);
+
   return (
     <PageTransition>
       <section className="section">
         <h1 className="page-title">Admin panel</h1>
-        <div className="grid-2">
-          {sections.map((s, i) => (
-            <Reveal key={s.title} className="card" delay={i * 80}>
-              <h2>{s.title}</h2>
-              <p className="muted">{s.text}</p>
-            </Reveal>
+        <div className="chips admin-tabs" role="tablist" aria-label="Admin sections">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={t.id === tab}
+              className={t.id === tab ? 'chip active' : 'chip'}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+            </button>
           ))}
+        </div>
+        {/* key: switching tabs mounts a fresh panel, so it loads fresh data */}
+        <div key={tab} className="fade-up" role="tabpanel">
+          <Panel />
         </div>
       </section>
     </PageTransition>
