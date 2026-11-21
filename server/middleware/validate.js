@@ -123,6 +123,9 @@ export const ClassesQuery = z
 export const SlotsQuery = z
   .object({ days: z.coerce.number().int().min(1).max(28).default(14) })
   .strict({ message: 'Unknown query parameter' });
+export const DeleteClassQuery = z
+  .object({ cancelBookings: z.enum(['true'], { message: 'cancelBookings can only be "true"' }).optional() })
+  .strict({ message: 'Unknown query parameter' });
 export const BookingsQuery = z
   .object({ status: z.enum(['booked', 'cancelled']).optional(), type: z.enum(['class', 'pt']).optional() })
   .strict({ message: 'Unknown query parameter' });

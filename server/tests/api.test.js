@@ -8,6 +8,8 @@ import app from '../app.js';
 process.env.JWT_SECRET ??= 'test-secret';
 const memberToken = jwt.sign({ sub: '665f1c2e4b7a1d3f0c8e2a9b', role: 'member' }, process.env.JWT_SECRET);
 const auth = { Authorization: `Bearer ${memberToken}` };
+const adminToken = jwt.sign({ sub: '665f1c2e4b7a1d3f0c8e2a9c', role: 'admin' }, process.env.JWT_SECRET);
+const adminAuth = { Authorization: `Bearer ${adminToken}` };
 
 describe('/api/bookings', () => {
   it('rejects a missing token', async () => {
@@ -48,5 +50,17 @@ describe('/api/plans', () => {
   it("doesn't let a member create a plan", async () => {
     const res = await request(app).post('/api/plans').set(auth).send({ name: 'Free', priceMonthly: 0 });
     expect(res.status).toBe(403);
+  });
+});
+
+describe('/api/classes', () => {
+  it("doesn't let a member cancel a class", async () => {
+    const res = await request(app).delete('/api/classes/665f1c2e4b7a1d3f0c8e2a9d?cancelBookings=true').set(auth);
+    expect(res.status).toBe(403);
+  });
+
+  it('rejects an unknown cancelBookings value', async () => {
+    const res = await request(app).delete('/api/classes/665f1c2e4b7a1d3f0c8e2a9d?cancelBookings=yes').set(adminAuth);
+    expect(res.status).toBe(400);
   });
 });

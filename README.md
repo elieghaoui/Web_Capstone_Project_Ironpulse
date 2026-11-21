@@ -145,9 +145,10 @@ Every `VITE_` value ships to the browser, so secrets only ever go in `server/.en
 | POST · PATCH · DELETE | `/api/trainers`, `/api/trainers/:id` | Admin | 201 · 200 · 204 | Manage trainers |
 | GET | `/api/classes?category=Yoga`, `/api/classes/:id` | Public | 200 | Upcoming classes with `spotsLeft` |
 | POST · PATCH · DELETE | `/api/classes`, `/api/classes/:id` | Admin | 201 · 200 · 204 | Manage classes |
+| DELETE | `/api/classes/:id?cancelBookings=true` | Admin | 204 | Cancel a booked class: its bookings become `cancelled`, then the class is removed |
 | GET | `/api/bookings` | Logged in | 200 | Members: my upcoming bookings · Admin: all (`?status=booked&type=class`) |
 | POST | `/api/bookings` | Logged in | 201 | Book a class or a PT session |
-| GET · PATCH · DELETE | `/api/bookings/:id` | Owner | 200 · 200 · 204 | Read, change the note, cancel |
+| GET · PATCH · DELETE | `/api/bookings/:id` | Owner (DELETE: owner or admin) | 200 · 200 · 204 | Read, change the note, cancel |
 
 Status codes: 200 OK, 201 created, 204 done (no body), 400 bad input or malformed id, 401 not logged in, 403 not allowed (admins only, plan limit), 404 not found or not yours, 409 conflict (full, already booked, still in use), 413 body too large, 429 too many login attempts.
 
@@ -188,17 +189,18 @@ Status codes: 200 OK, 201 created, 204 done (no body), 400 bad input or malforme
 - PT: 1 hour, starting on the hour, inside the trainer's weekly hours (Beirut time), and the slot must be free.
 - Plan limits: each plan includes a number of classes and PT sessions per **30-day period** starting the day you chose the plan (Basic: none; Elite and up: unlimited classes). No plan, or limit reached: 403.
 - Cancelling: up to **12 hours** before the start. The booking is kept as `cancelled` and no longer counts toward your limit.
-- Every booking query is filtered by the logged-in user: someone else's booking id gives **404**.
-- Admins can't delete a class with bookings, a trainer with classes or sessions, or a plan members are on (409).
+- The gym (admin) can cancel any member's booking at any time, or cancel a whole class with **Cancel class**; members get their credit back either way.
+- Every member booking query is filtered by the logged-in user: someone else's booking id gives **404**.
+- Admins can't simply delete a class with bookings (409: cancel it instead), a trainer with classes or sessions, or a plan members are on (409).
 
 ## Automated tests (Session 22)
 
 ```bash
-cd server && npm test   # 7 tests
+cd server && npm test   # 9 tests
 cd client && npm test   # 8 tests
 ```
 
-- **API** (`server/tests/api.test.js`, Vitest + Supertest against `app.js`, no database needed): missing or forged token → 401, unknown booking type → 400, malformed id → 400, short password on signup → 400, `{"$ne": null}` login injection → 400, member creating a plan → 403.
+- **API** (`server/tests/api.test.js`, Vitest + Supertest against `app.js`, no database needed): missing or forged token → 401, unknown booking type → 400, malformed id → 400, short password on signup → 400, `{"$ne": null}` login injection → 400, member creating a plan → 403, member cancelling a class → 403, bad `cancelBookings` value → 400.
 - **Components** (`client/src/components/*.test.jsx`, Vitest + React Testing Library + user-event): `ClassRow` shows the class, calls `onBook` with the class id, disables *Book* when the class is full and shows *Booked ✓* instead of a button; `BookingCard` asks for confirmation before cancelling and hides *Cancel* less than 12 hours before the start; the admin `ConfirmDelete` button only deletes after the second click and shows the server's message when a delete is refused (409).
 - We checked the tests can fail: changing `onBook(gymClass._id)` to `onBook('oops')` in `ClassRow.jsx` makes "calls onBook with the class id" fail.
 - `npm run test:watch` re-runs the tests on every save.

@@ -4,7 +4,7 @@ import { GymClass } from '../models/GymClass.js';
 import { Trainer } from '../models/Trainer.js';
 import { Booking } from '../models/Booking.js';
 import { requireAuth, requireAdmin } from '../middleware/requireAuth.js';
-import { validate, validateQuery, checkId, ClassInput, ClassUpdateInput, ClassesQuery } from '../middleware/validate.js';
+import { validate, validateQuery, checkId, ClassInput, ClassUpdateInput, ClassesQuery, DeleteClassQuery } from '../middleware/validate.js';
 
 // /api/classes: anyone can read the schedule; only admins create, update or delete.
 const classesRouter = express.Router();
@@ -63,8 +63,14 @@ classesRouter.patch('/:id', adminOnly, checkId, validate(ClassUpdateInput), asyn
   res.json(gymClass);
 });
 
-classesRouter.delete('/:id', adminOnly, checkId, async (req, res) => {
-  if (await Booking.exists({ classId: req.params.id, status: 'booked' })) {
+// DELETE /api/classes/:id                       -> 204, or 409 if members booked it
+// DELETE /api/classes/:id?cancelBookings=true    -> the gym cancels the class: every active
+//   booking becomes "cancelled" (members get their credit back), then the class is removed.
+classesRouter.delete('/:id', adminOnly, checkId, validateQuery(DeleteClassQuery), async (req, res) => {
+  const active = { classId: req.params.id, status: 'booked' };
+  if (req.validQuery.cancelBookings === 'true') {
+    await Booking.updateMany(active, { status: 'cancelled' });
+  } else if (await Booking.exists(active)) {
     return res.status(409).json({ error: 'Members booked this class: cancel their bookings first' });
   }
   const gymClass = await GymClass.findByIdAndDelete(req.params.id);
