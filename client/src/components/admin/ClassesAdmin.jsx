@@ -99,6 +99,14 @@ export default function ClassesAdmin() {
     reload();
   }
 
+  // The gym cancels a class members booked: their bookings become "cancelled"
+  // (credit back), then the class is removed.
+  async function handleCancelClass(id) {
+    await apiFetch(`/api/classes/${id}?cancelBookings=true`, { method: 'DELETE' });
+    if (editingId === id) resetForm();
+    reload();
+  }
+
   return (
     <div className="admin-grid">
       <form ref={formRef} className="admin-form" onSubmit={handleSubmit} noValidate>
@@ -166,7 +174,9 @@ export default function ClassesAdmin() {
         {error && <ErrorMessage message={error.message} />}
         {classes?.length === 0 && <p className="muted">No upcoming classes yet.</p>}
         <div className="admin-list">
-          {classes?.map((c) => (
+          {classes?.map((c) => {
+            const booked = c.capacity - c.spotsLeft;
+            return (
             <article key={c._id} className={c._id === editingId ? 'admin-row editing' : 'admin-row'}>
               <div>
                 <h3>{c.title} <span className="tag">{c.category}</span></h3>
@@ -174,14 +184,24 @@ export default function ClassesAdmin() {
                   {formatDay(c.startsAt)} · {formatTime(c.startsAt)} · {c.durationMin} min · {c.room}
                   {c.trainerId?.name && ` · ${c.trainerId.name}`}
                 </p>
-                <p className="small">{c.capacity - c.spotsLeft} / {c.capacity} booked</p>
+                <p className="small">{booked} / {c.capacity} booked</p>
               </div>
               <div className="row-actions">
                 <button type="button" className="btn btn-ghost btn-small" onClick={() => startEdit(c)}>Edit</button>
-                <ConfirmDelete onConfirm={() => handleDelete(c._id)} />
+                {booked > 0 ? (
+                  <ConfirmDelete
+                    label="Cancel class"
+                    confirmLabel={`Yes, cancel ${booked} booking${booked > 1 ? 's' : ''}`}
+                    busyLabel="Cancelling…"
+                    onConfirm={() => handleCancelClass(c._id)}
+                  />
+                ) : (
+                  <ConfirmDelete onConfirm={() => handleDelete(c._id)} />
+                )}
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

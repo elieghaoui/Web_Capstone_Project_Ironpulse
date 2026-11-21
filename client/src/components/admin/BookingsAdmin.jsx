@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import ConfirmDelete from './ConfirmDelete.jsx';
 import { Loader, ErrorMessage } from '../Status.jsx';
 import { useApi } from '../../hooks/useApi.js';
+import { apiFetch } from '../../api/client.js';
 import { formatDay, formatTime } from '../../utils.js';
 import FilterGroup from './FilterGroup.jsx';
 
@@ -15,8 +17,9 @@ const typeOptions = [
   { value: 'pt', label: 'PT' },
 ];
 
-// Read-only: every booking in the gym. GET /api/bookings returns all of them
-// to an admin, filtered with ?status=...&type=... (validated on the server).
+// Every booking in the gym: GET /api/bookings returns all of them to an admin,
+// filtered with ?status=...&type=... (validated on the server).
+// An admin can cancel any active booking, at any time.
 export default function BookingsAdmin() {
   const [status, setStatus] = useState('booked');
   const [type, setType] = useState('');
@@ -25,7 +28,12 @@ export default function BookingsAdmin() {
   if (status) params.set('status', status);
   if (type) params.set('type', type);
   const query = params.toString();
-  const { data: bookings, error, loading } = useApi(`/api/bookings${query ? `?${query}` : ''}`);
+  const { data: bookings, error, loading, reload } = useApi(`/api/bookings${query ? `?${query}` : ''}`);
+
+  async function cancelBooking(id) {
+    await apiFetch(`/api/bookings/${id}`, { method: 'DELETE' }); // kept as "cancelled", credit back
+    reload();
+  }
 
   return (
     <div>
@@ -60,6 +68,16 @@ export default function BookingsAdmin() {
                   {b.note && <span className="muted"> · “{b.note}”</span>}
                 </p>
               </div>
+              {b.status === 'booked' && (
+                <div className="row-actions">
+                  <ConfirmDelete
+                    label="Cancel booking"
+                    confirmLabel="Yes, cancel"
+                    busyLabel="Cancelling…"
+                    onConfirm={() => cancelBooking(b._id)}
+                  />
+                </div>
+              )}
             </article>
           );
         })}

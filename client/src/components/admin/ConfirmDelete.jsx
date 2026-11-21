@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Notice } from '../Status.jsx';
 
-// Two-step delete: the first click only asks, the second one deletes.
+// Two-step delete (or cancel): the first click only asks, the second one does it.
 // If the server refuses (e.g. 409 "Members booked this class"), its message shows here.
-export default function ConfirmDelete({ onConfirm, label = 'Delete' }) {
+export default function ConfirmDelete({ onConfirm, label = 'Delete', confirmLabel = 'Yes, delete', busyLabel = 'Deleting…' }) {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -25,7 +25,7 @@ export default function ConfirmDelete({ onConfirm, label = 'Delete' }) {
       {confirming ? (
         <>
           <button type="button" className="btn btn-danger btn-small" onClick={handleYes} disabled={busy}>
-            {busy ? 'Deleting…' : 'Yes, delete'}
+            {busy ? busyLabel : confirmLabel}
           </button>
           <button type="button" className="btn btn-ghost btn-small" onClick={() => setConfirming(false)} disabled={busy}>
             Keep it
