@@ -6,8 +6,8 @@ A full-stack web app for IRONPULSE, a gym in Beirut. Members choose a membership
 
 | | Live address |
 | --- | --- |
-| **App** (Vercel) | _added after deployment_ |
-| **API** (Render) | _added after deployment_ · health check: `/api/health` |
+| **App** (Vercel) | **https://ironpulse-inky-xi.vercel.app** |
+| **API** (Render) | **https://ironpulse-api-rss4.onrender.com** · health check: [`/api/health`](https://ironpulse-api-rss4.onrender.com/api/health) |
 
 The API runs on Render's free plan, which sleeps when nobody uses it: the first request after a while can take about 30 seconds.
 
@@ -271,5 +271,5 @@ Render sets `PORT` itself; `server.js` reads it. Check: open `<API address>/api/
 - [x] Milestone 1: scaffold, wireframes and schema (Session 20)
 - [x] Milestone 2: auth + CRUD routes working (Session 21)
 - [x] Milestone 3: front end connected, booking works, tests and performance (Session 22)
-- [ ] Milestone 4: deployed on Vercel + Render + Atlas, CI on GitHub Actions (Session 23)
+- [x] Milestone 4: deployed on Vercel + Render + Atlas, CI on GitHub Actions (Session 23)
 - [ ] Final demo (Session 24)
