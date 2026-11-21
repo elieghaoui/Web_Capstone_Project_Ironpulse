@@ -4,6 +4,13 @@ A full-stack web app for IRONPULSE, a gym in Beirut. Members choose a membership
 
 **Team:** Adam Bou Ghosn, Elie El Ghaoui · Web Programming capstone
 
+| | Live address |
+| --- | --- |
+| **App** (Vercel) | _added after deployment_ |
+| **API** (Render) | _added after deployment_ · health check: `/api/health` |
+
+The API runs on Render's free plan, which sleeps when nobody uses it: the first request after a while can take about 30 seconds.
+
 ## Features
 
 - **Accounts:** sign up, log in, log out; members and admins (bcrypt + JWT).
@@ -53,6 +60,7 @@ A full-stack web app for IRONPULSE, a gym in Beirut. Members choose a membership
 
 ```
 ironpulse/
+├── .github/workflows/      ci.yml (tests on every push)
 ├── docs/                   wireframes.png, schema.md, api/ (Thunder Client collection)
 ├── SECURITY.md             security audit (lecture 21)
 ├── PERFORMANCE.md          Lighthouse before / fix / after (lecture 22)
@@ -90,7 +98,7 @@ npm install
 cp .env.example .env      # Windows: copy .env.example .env
 ```
 
-Open `server/.env` and fill in `MONGODB_URI` (from Atlas), a long random `JWT_SECRET`, `CLIENT_ORIGIN` and an `ADMIN_PASSWORD`. Then:
+Open `server/.env` and fill in `MONGODB_URI` (from Atlas), a long random `JWT_SECRET`, `CLIENT_URL` and an `ADMIN_PASSWORD`. Then:
 
 ```bash
 npm run seed    # resets plans, trainers, 2 weeks of classes, bookings and member accounts; keeps/creates the admin
@@ -113,7 +121,7 @@ npm run dev     # app on http://localhost:5173
 | Setting | Development | Production |
 | --- | --- | --- |
 | `VITE_API_URL` (client) | `http://localhost:3000` | the live API address |
-| `CLIENT_ORIGIN` (server) | `http://localhost:5173` | the live site address (no trailing `/`) |
+| `CLIENT_URL` (server) | `http://localhost:5173` | the live site address (no trailing `/`) |
 | `MONGODB_URI`, `JWT_SECRET` (server) | `server/.env` on your laptop | the host's settings page |
 
 Every `VITE_` value ships to the browser, so secrets only ever go in `server/.env`. Both `.env` files are git-ignored.
@@ -223,11 +231,45 @@ See **[SECURITY.md](SECURITY.md)** for our audit of the Session 21 checklist (at
 - `helmet()` sets secure headers and hides `X-Powered-By`; CORS only allows our front end.
 - Secrets live in `.env` (git-ignored); the API refuses to start without `MONGODB_URI` and `JWT_SECRET`.
 
+## Deployment (Session 23)
+
+Three pieces, three hosts: the React app on **Vercel**, the Express API on **Render**, the data on **MongoDB Atlas**. The browser only talks to the API; only the API talks to the database.
+
+**1. Database (Atlas):** in *Network Access*, allow `0.0.0.0/0` (Render's address changes). Use a database user whose password has only letters and numbers.
+
+**2. API (Render → New → Web Service, from this GitHub repo):**
+
+| Field | Value |
+| --- | --- |
+| Root directory | `server` |
+| Build command | `npm ci` |
+| Start command | `npm start` |
+| Environment variables | `MONGODB_URI`, `JWT_SECRET` (a **new** long random one, not the dev one), `CLIENT_URL` (the Vercel address, no trailing `/`), `NODE_ENV=production` |
+
+Render sets `PORT` itself; `server.js` reads it. Check: open `<API address>/api/health` → `{"ok":true}`.
+
+**3. Front end (Vercel → Add New → Project, from this GitHub repo):**
+
+| Field | Value |
+| --- | --- |
+| Root directory | `client` |
+| Build command | `npm run build` |
+| Output directory | `dist` |
+| Environment variable | `VITE_API_URL` = the Render address (no trailing `/`) |
+
+`client/vercel.json` sends every path to `index.html`, so refreshing `/classes` or `/dashboard` doesn't 404. `VITE_` values are baked in at build time: after changing one, redeploy.
+
+**4. Connect them:** put the Vercel address in Render's `CLIENT_URL` and redeploy the API. Every push to `main` redeploys both.
+
+**CI:** `.github/workflows/ci.yml` runs `npm ci` + `npm test` in `server/` and `client/` on every push and pull request (GitHub → *Actions* tab).
+
+**If something breaks:** "blocked by CORS policy" → `CLIENT_URL` doesn't match the site address exactly · requests go to `localhost` → `VITE_API_URL` wasn't set at build time, redeploy · 404 on refresh → missing rewrite · API exits on start → a missing env var or Atlas blocking the IP (see Render's logs).
+
 ## Milestones
 
 - [x] Proposal (Session 19)
 - [x] Milestone 1: scaffold, wireframes and schema (Session 20)
 - [x] Milestone 2: auth + CRUD routes working (Session 21)
 - [x] Milestone 3: front end connected, booking works, tests and performance (Session 22)
-- [ ] Milestone 4: deployed (Session 23)
+- [ ] Milestone 4: deployed on Vercel + Render + Atlas, CI on GitHub Actions (Session 23)
 - [ ] Final demo (Session 24)

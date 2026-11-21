@@ -33,8 +33,8 @@ so no upcoming classes showed). Our own operators are now wrapped in
 - `requireAuth` returns 401 for a missing, forged or expired token; `requireAdmin` returns 403.
 - A malformed id (`/api/bookings/xyz`) gets 400 `Invalid id` before the database is asked (lecture 18).
 - Express 5 sends errors thrown in `async` routes to the error handler, so a database problem gives a JSON 500 instead of crashing the server.
-- CORS only allows our own front end (`CLIENT_ORIGIN`). `trust proxy` is set so the rate limiter sees real IPs once deployed.
+- CORS only allows our own front end (`CLIENT_URL`). `trust proxy` is set so the rate limiter sees real IPs once deployed.
 
 ## Still to do
 
-- **HTTPS:** production URLs and `CLIENT_ORIGIN` will use `https://` when we deploy (Milestone 4).
+- **HTTPS:** production URLs and `CLIENT_URL` will use `https://` when we deploy (Milestone 4).

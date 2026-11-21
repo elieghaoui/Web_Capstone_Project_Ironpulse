@@ -26,8 +26,9 @@ app.set('trust proxy', 1);
 
 app.use(logger); // lecture 16: runs first, prints every request
 app.use(helmet()); // secure headers, hides X-Powered-By
-// Only our React app may call the API from a browser. No trailing / in the origin!
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
+// Only our React app may call the API from a browser (lecture 23: CLIENT_URL).
+// No trailing / in the address! server.js refuses to start if it's missing.
+app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json({ limit: '10kb' })); // fills req.body, caps its size
 
 const apiLimiter = rateLimit({ windowMs: 15 * 60_000, limit: 300 });

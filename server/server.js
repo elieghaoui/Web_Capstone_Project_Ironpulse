@@ -10,7 +10,7 @@ try {
   checkEnv(); // crash now if MONGODB_URI or JWT_SECRET is missing
   await mongoose.connect(process.env.MONGODB_URI);
   console.log('connected to MongoDB');
-  app.listen(port, () => console.log(`API on http://localhost:${port}`));
+  app.listen(port, () => console.log(`API on port ${port}`));
 } catch (err) {
   console.error('Could not start the server:', err.message);
   process.exit(1);
