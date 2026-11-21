@@ -21,9 +21,15 @@ function validate(form) {
   return errors;
 }
 
+// 1 perk, 2 perks
+function plural(n, word) {
+  return `${n} ${word}${n === 1 ? '' : 's'}`;
+}
+
 // "null" classes = unlimited (same meaning as the server and the Plans page)
 function describeClasses(n) {
-  return n === null ? 'Unlimited classes' : `${n} classes`;
+  if (n === null) return 'Unlimited classes';
+  return n === 1 ? '1 class' : `${n} classes`;
 }
 
 export default function PlansAdmin() {
@@ -169,7 +175,7 @@ export default function PlansAdmin() {
               <div>
                 <h3>{p.name} <span className="muted small">${p.priceMonthly}/month</span></h3>
                 <p className="muted small">
-                  {describeClasses(p.classesPerMonth)} · {p.ptSessionsPerMonth} PT sessions · {p.perks.length} perks
+                  {describeClasses(p.classesPerMonth)} · {plural(p.ptSessionsPerMonth, 'PT session')} · {plural(p.perks.length, 'perk')}
                 </p>
               </div>
               <div className="row-actions">

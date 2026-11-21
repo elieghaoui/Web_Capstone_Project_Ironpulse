@@ -139,7 +139,7 @@ export default function TrainersAdmin() {
                 <div>
                   <h3>{t.name}</h3>
                   <p className="muted small">
-                    {t.specialties.join(' · ') || 'No specialties'} · {t.yearsExperience} years · {t.weeklyAvailability.length} PT windows a week
+                    {t.specialties.join(' · ') || 'No specialties'} · {t.yearsExperience} years · {t.weeklyAvailability.length} PT {t.weeklyAvailability.length === 1 ? 'window' : 'windows'} a week
                   </p>
                 </div>
               </div>

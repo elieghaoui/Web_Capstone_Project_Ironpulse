@@ -1213,8 +1213,22 @@ h3 {
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* minmax(0, ...) lets the columns shrink */
   gap: var(--sp-3);
+}
+
+/* Inputs have a built-in minimum width; without this they spill out of narrow cards. */
+.admin-form .field,
+.hours-row .field {
+  min-width: 0;
+}
+
+.admin-form .field input,
+.admin-form .field select,
+.admin-form .field textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .field select {
@@ -1345,7 +1359,7 @@ h3 {
 
 .hours-row {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr auto;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto;
   align-items: end;
   gap: var(--sp-2);
   width: 100%;
