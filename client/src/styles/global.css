@@ -47,13 +47,17 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: clip; /* phones: no sideways drag */
+}
+
 body {
   margin: 0;
   background: var(--surface);
   color: var(--text);
   font-family: var(--font-body);
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: clip; /* the tilted marquee and hero glow can't make the page scroll sideways */
 }
 
 a {

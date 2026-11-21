@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PageTransition from '../components/PageTransition.jsx';
 import { ErrorMessage } from '../components/Status.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
@@ -18,6 +18,7 @@ function validate(form) {
 export default function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
@@ -39,7 +40,7 @@ export default function Signup() {
     setBusy(true);
     try {
       await signup(form.name, form.email, form.password);
-      navigate('/dashboard', { replace: true });
+      navigate(location.state?.from || '/dashboard', { replace: true }); // back to Plans/Classes if they came from there
     } catch (err) {
       setServerError(err.message); // e.g. "Email already registered"
     } finally {
@@ -77,7 +78,7 @@ export default function Signup() {
             {busy ? 'Creating account…' : 'Sign up'}
           </button>
           <p className="muted">
-            Already a member? <Link to="/login">Log in</Link>
+            Already a member? <Link to="/login" state={location.state}>Log in</Link>
           </p>
         </form>
       </section>

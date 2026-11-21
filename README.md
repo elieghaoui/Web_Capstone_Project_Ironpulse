@@ -104,6 +104,7 @@ Open `server/.env` and fill in `MONGODB_URI` (from Atlas), a long random `JWT_SE
 
 ```bash
 npm run seed    # resets plans, trainers, 2 weeks of classes, bookings and member accounts; keeps/creates the admin
+npm run seed:classes   # later: only adds the next 4 weeks of classes (deletes nothing)
 npm run dev     # API on http://localhost:3000 (node --watch restarts it on every save)
 ```
 

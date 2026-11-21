@@ -56,7 +56,8 @@ export default function TrainerProfile() {
       <section className="section narrow">
         <Link to="/trainers" className="back-link">← All coaches</Link>
         {loading && <Loader label="Loading profile" />}
-        {error && <ErrorMessage message={error.message} />}
+        {/* A bad or old link: "Invalid id" (400) or "Trainer not found" (404) from the API */}
+        {error && <ErrorMessage message={/invalid id|not found/i.test(error.message) ? 'Coach not found.' : error.message} />}
 
         {trainer && (
           <div className="fade-up">
@@ -81,7 +82,7 @@ export default function TrainerProfile() {
             </ul>
 
             <h2>Book a 1-hour session</h2>
-            {slotsError && <ErrorMessage message={slotsError.message} />}
+            {slotsError && !error && <ErrorMessage message={slotsError.message} />}
             {!slots && !slotsError && <Loader label="Loading free times" />}
             {slots && (
               <form className="pt-form" onSubmit={bookSession} noValidate>

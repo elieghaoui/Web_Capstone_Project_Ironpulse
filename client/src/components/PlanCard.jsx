@@ -1,9 +1,10 @@
 import { Notice } from './Status.jsx';
 
-function describeCount(n, word) {
-  if (n === null || n === undefined) return `Unlimited ${word}`;
-  if (n === 0) return `No ${word}`;
-  return `${n} ${word} / 30 days`;
+// describeCount(1, 'PT session', 'PT sessions') -> "1 PT session / 30 days"
+function describeCount(n, one, many) {
+  if (n === null || n === undefined) return `Unlimited ${many}`;
+  if (n === 0) return `No ${many}`;
+  return `${n} ${n === 1 ? one : many} / 30 days`;
 }
 
 // One plan on the Plans page. The page owns the state; this card just shows it.
@@ -21,8 +22,8 @@ export default function PlanCard({ plan, isCurrent, busy, notice, onChoose, dela
         ${plan.priceMonthly}<span>/month</span>
       </p>
       <ul>
-        <li>{describeCount(plan.classesPerMonth, 'group classes')}</li>
-        <li>{describeCount(plan.ptSessionsPerMonth, 'PT sessions')}</li>
+        <li>{describeCount(plan.classesPerMonth, 'group class', 'group classes')}</li>
+        <li>{describeCount(plan.ptSessionsPerMonth, 'PT session', 'PT sessions')}</li>
         {plan.perks.map((perk) => (
           <li key={perk}>{perk}</li>
         ))}

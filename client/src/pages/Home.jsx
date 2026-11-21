@@ -10,7 +10,7 @@ const classNames = ['HIIT BURN', 'SPIN RUSH', 'POWER YOGA', 'PILATES', 'BOXING',
 const stats = [
   { value: 7, label: 'class types' },
   { value: 4, label: 'expert trainers' },
-  { value: 24, label: 'hours a day', suffix: '/7' },
+  { value: 24, label: 'access on Pro and up', suffix: '/7' },
   { value: 5, label: 'membership plans' },
 ];
 
@@ -47,9 +47,10 @@ export default function Home() {
     <PageTransition>
       <section className="hero">
         <div className="hero-glow" aria-hidden="true" />
-        <h1 className="hero-title">
+        {/* aria-label: screen readers read "Feel the pulse." instead of the three separate words */}
+        <h1 className="hero-title" aria-label="Feel the pulse.">
           {headline.map((word, i) => (
-            <span key={word} className={i === 2 ? 'word accent' : 'word'} style={{ animationDelay: `${i * 150}ms` }}>
+            <span key={word} aria-hidden="true" className={i === 2 ? 'word accent' : 'word'} style={{ animationDelay: `${i * 150}ms` }}>
               {word}
             </span>
           ))}
@@ -109,7 +110,7 @@ export default function Home() {
       </section>
 
       <Reveal className="section cta">
-        <h2>First class is on us.</h2>
+        <h2>Ready when you are.</h2>
         <Link to="/signup" className="btn btn-primary btn-lg">Create your account</Link>
       </Reveal>
     </PageTransition>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PageTransition from '../components/PageTransition.jsx';
-import { ErrorMessage } from '../components/Status.jsx';
+import { ErrorMessage, Notice } from '../components/Status.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 
 function validate(form) {
@@ -49,6 +49,8 @@ export default function Login() {
       <section className="section auth">
         <form className="auth-card" onSubmit={handleSubmit} noValidate>
           <h1>Welcome back</h1>
+          {/* Sent here from Book / Choose plan while logged out */}
+          {location.state?.from && <Notice type="success">Log in or create an account to continue.</Notice>}
           <label>
             Email
             <input name="email" type="email" autoComplete="email" value={form.email} onChange={handleChange} aria-invalid={!!errors.email} />
@@ -64,7 +66,7 @@ export default function Login() {
             {busy ? 'Logging in…' : 'Log in'}
           </button>
           <p className="muted">
-            New here? <Link to="/signup">Create an account</Link>
+            New here? <Link to="/signup" state={location.state}>Create an account</Link>
           </p>
         </form>
       </section>
