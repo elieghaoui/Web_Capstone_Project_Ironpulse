@@ -123,6 +123,7 @@ bookingsRouter.delete('/:id', checkId, async (req, res) => {
   const booking = await Booking.findOne(filter);
   if (!booking) return res.status(404).json({ error: 'Booking not found' });
   if (booking.status === 'cancelled') return res.status(400).json({ error: 'This booking is already cancelled' });
+  if (booking.startsAt <= new Date()) return res.status(400).json({ error: 'This booking has already happened' });
   if (!isAdmin && booking.startsAt.getTime() - Date.now() < CANCEL_LIMIT_HOURS * HOUR) {
     return res.status(400).json({ error: `Too late to cancel: bookings can be cancelled up to ${CANCEL_LIMIT_HOURS} hours before they start` });
   }

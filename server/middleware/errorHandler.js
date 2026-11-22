@@ -16,7 +16,14 @@ export function errorHandler(err, req, res, next) {
     return res.status(400).json({ error: 'Invalid id' }); // lecture 18: malformed id = 400
   }
   if (err?.code === 11000) {
-    return res.status(409).json({ error: 'Already exists' });
+    // A unique index refused a duplicate: say which one (keyValue = the fields involved).
+    const fields = Object.keys(err.keyValue ?? {});
+    let error = 'Already exists';
+    if (fields.includes('email')) error = 'Email already registered';
+    else if (fields.includes('name')) error = 'That name is already used';
+    else if (fields.includes('classId')) error = 'You already booked this class';
+    else if (fields.includes('trainerId')) error = 'That time slot is already taken';
+    return res.status(409).json({ error });
   }
   if (err?.type === 'entity.too.large') {
     return res.status(413).json({ error: 'Request body too large' });

@@ -52,12 +52,14 @@ export default function BookingsAdmin() {
           const isClass = b.type === 'class';
           const what = isClass ? b.classId?.title ?? 'Deleted class' : 'Personal training';
           const coach = isClass ? b.classId?.trainerId?.name : b.trainerId?.name;
+          const past = new Date(b.startsAt) <= new Date(); // already happened: nothing to cancel
           return (
             <article key={b._id} className="admin-row">
               <div>
                 <h3>
                   {what} <span className="tag">{isClass ? 'Class' : 'PT'}</span>{' '}
                   <span className={b.status === 'cancelled' ? 'tag cancelled' : 'tag booked'}>{b.status}</span>
+                  {past && <span className="tag"> past</span>}
                 </h3>
                 <p className="muted small">
                   {formatDay(b.startsAt)} · {formatTime(b.startsAt)}
@@ -68,7 +70,7 @@ export default function BookingsAdmin() {
                   {b.note && <span className="muted"> · “{b.note}”</span>}
                 </p>
               </div>
-              {b.status === 'booked' && (
+              {b.status === 'booked' && !past && (
                 <div className="row-actions">
                   <ConfirmDelete
                     label="Cancel booking"

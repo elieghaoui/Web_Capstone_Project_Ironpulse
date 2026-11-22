@@ -4,6 +4,7 @@ import { describe, it, expect } from 'vitest';
 import mongoose from 'mongoose';
 import app from '../app.js';
 import { hasRoom } from '../utils/spots.js';
+import { errorHandler } from '../middleware/errorHandler.js';
 
 // Lecture 22: requests without a browser. These cases are rejected before the
 // database is asked, so no port and no database are needed.
@@ -73,5 +74,22 @@ describe('booking a class spot', () => {
     const filter = hasRoom({ _id: new mongoose.Types.ObjectId(), capacity: 20 });
     expect(() => mongoose.sanitizeFilter(filter)).not.toThrow();
     expect(filter.bookedCount.$not).toEqual({ $gte: 20 }); // "not full"
+  });
+});
+
+describe('errorHandler', () => {
+  // A fake res that remembers what was sent (no server needed).
+  function fakeRes() {
+    const res = { statusCode: 0, body: null };
+    res.status = (code) => { res.statusCode = code; return res; };
+    res.json = (body) => { res.body = body; return res; };
+    return res;
+  }
+
+  it('names the duplicate field on a 409', () => {
+    const res = fakeRes();
+    errorHandler({ code: 11000, keyValue: { name: 'Pro' } }, {}, res, () => {});
+    expect(res.statusCode).toBe(409);
+    expect(res.body.error).toBe('That name is already used');
   });
 });
