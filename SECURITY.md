@@ -15,7 +15,7 @@ checks the expected status code.
 | **Mass assignment** | Signup with `"role": "admin"`; booking with `"userId": "<someone else>"` | Already safe for signup: the route never read `role` | zod drops every undeclared key, so `role`, `userId`, `status` can never be set from a request | **201**, account created as `member`; bookings always belong to the caller |
 | **Big payloads** | Signup with a 20 kB name | Bodies up to 100 kB reached the database layer | `express.json({ limit: '10kb' })`, `.max()` on every string, oversized body handled in the error handler | **413** `Request body too large` |
 | **XSS** | Name `<img src=x onerror=alert(1)>` | Already safe: React escapes text, no `dangerouslySetInnerHTML` anywhere | Kept it that way; helmet sends a Content-Security-Policy | Shown as plain text on the dashboard |
-| **Headers** | `curl -I localhost:3000/api/health` | `X-Powered-By: Express` advertised, no security headers | `app.use(helmet())` first, before routes | CSP, HSTS, `nosniff` present; `X-Powered-By` hidden |
+| **Headers** | `curl -I <API address>/api/health` (local API) | `X-Powered-By: Express` advertised, no security headers | `app.use(helmet())` first, before routes | CSP, HSTS, `nosniff` present; `X-Powered-By` hidden |
 | **Secrets** | Start the API without `JWT_SECRET`; `git log -p \| grep SECRET` | Started anyway and only failed on the first login | `checkEnv()` crashes at startup if `MONGODB_URI` or `JWT_SECRET` is missing; `.env` files are git-ignored, `.env.example` has names only | Startup error `Missing env var: JWT_SECRET`; no secret in the repo |
 
 ## A bug we found on the way

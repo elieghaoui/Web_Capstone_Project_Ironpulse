@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Notice } from './Status.jsx';
 import { formatTime } from '../utils.js';
 
@@ -18,7 +19,11 @@ export default function ClassRow({ gymClass, booked, busy, notice, onBook }) {
         <div className="spots-bar" aria-hidden="true">
           <span style={{ '--fill': fill }} />
         </div>
-        {notice && <Notice type={notice.type}>{notice.text}</Notice>}
+        {notice && (
+          <Notice type={notice.type}>
+            {notice.text} {notice.planLink && <Link to="/plans">See plans</Link>}
+          </Notice>
+        )}
       </div>
       <div className="class-action">
         <span className={full ? 'spots full' : 'spots'}>{full ? 'Full' : `${gymClass.spotsLeft} spots left`}</span>

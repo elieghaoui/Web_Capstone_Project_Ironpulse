@@ -36,7 +36,8 @@ export default function Classes() {
       reload(); // spots left changes
       reloadMine(); // shows "Booked ✓"
     } catch (err) {
-      setNotice({ classId, type: 'error', text: err.message }); // e.g. "This class is full"
+      // e.g. "This class is full"; plan problems get a "See plans" link
+      setNotice({ classId, type: 'error', text: err.message, planLink: /plan/i.test(err.message) });
       reload(); // someone may have taken the last spot: show "Full" right away
     } finally {
       setBusyId(null);

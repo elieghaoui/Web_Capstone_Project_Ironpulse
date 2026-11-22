@@ -15,10 +15,10 @@ The API runs on Render's free plan, which sleeps when nobody uses it: the first 
 
 - **Accounts:** sign up, log in, log out; members and admins (bcrypt + JWT).
 - **Membership plans:** five plans (Basic to Athlete). Each plan includes a number of group classes and PT sessions per 30-day period.
-- **Class booking:** weekly schedule filtered by type, live "spots left", no double booking, full classes refused.
+- **Class booking:** weekly schedule filtered by type, live "spots left", no double booking, full classes refused. Two members can never both take the last spot (one atomic database update).
 - **Personal training:** trainer profiles, free 1-hour slots inside each trainer's hours (Beirut time), no overlapping sessions.
 - **My bookings:** list, add a note ("knee injury, go easy"), cancel up to 12 hours before (the credit comes back).
-- **Admin:** create, edit and delete plans, trainers and classes; see every booking.
+- **Admin panel:** tabs for classes, trainers (with weekly PT hours), plans and bookings; create, edit and delete; cancel any member's booking or a whole class (members get their credit back).
 - **Beyond CRUD:** all booking rules (capacity, plan limits per 30-day period, trainer hours, cancellation window) are checked on the server.
 - **Design:** dark, animated UI built with CSS transitions and keyframes; responsive on phone and desktop.
 
@@ -42,7 +42,7 @@ The API runs on Render's free plan, which sleeps when nobody uses it: the first 
 ## Architecture
 
 ```
- React (Vite, :5173)                 Express API (:3000)                          MongoDB Atlas
+ React (Vite)                        Express API                                  MongoDB Atlas
  ┌────────────────────┐   fetch   ┌───────────────────────────────────────┐   Mongoose   ┌──────────────┐
  │ pages / components │ ────────► │ logger → helmet → cors → express.json │ ───────────► │ users        │
  │ useApi (hook)      │  Bearer   │ → rate limits → router                │              │ plans        │
@@ -105,7 +105,7 @@ Open `server/.env` and fill in `MONGODB_URI` (from Atlas), a long random `JWT_SE
 ```bash
 npm run seed    # resets plans, trainers, 2 weeks of classes, bookings and member accounts; keeps/creates the admin
 npm run seed:classes   # later: only adds the next 4 weeks of classes (deletes nothing) and recounts booked spots
-npm run dev     # API on http://localhost:3000 (node --watch restarts it on every save)
+npm run dev     # starts the API on your computer, port 3000 (node --watch restarts it on every save)
 ```
 
 ### 2. Front end (second terminal)
@@ -114,17 +114,17 @@ npm run dev     # API on http://localhost:3000 (node --watch restarts it on ever
 cd client
 npm install
 cp .env.example .env.development   # Windows: copy .env.example .env.development
-npm run dev     # app on http://localhost:5173
+npm run dev     # starts the app; open the address Vite prints
 ```
 
-`VITE_API_URL` tells React where the API is. Restart `npm run dev` after changing it.
+In `client/.env.development`, set `VITE_API_URL` to your API's address (your computer, port 3000), and in `server/.env` set `CLIENT_URL` to the address Vite printed (no trailing `/`). `VITE_API_URL` tells React where the API is. Restart `npm run dev` after changing it.
 
 ### Configuration
 
 | Setting | Development | Production |
 | --- | --- | --- |
-| `VITE_API_URL` (client) | your local API address (`client/.env.development`) | the live API address (Vercel settings) |
-| `CLIENT_URL` (server) | your local Vite address (`server/.env`) | the live site address (Render settings, no trailing `/`) |
+| `VITE_API_URL` (client) | your local API address, in `client/.env.development` | the live API address, in Vercel's settings |
+| `CLIENT_URL` (server) | the address Vite prints, in `server/.env` | the live site address, in Render's settings (no trailing `/`) |
 | `MONGODB_URI`, `JWT_SECRET` (server) | `server/.env` on your laptop | the host's settings page |
 
 Every `VITE_` value ships to the browser, so secrets only ever go in `server/.env`. Both `.env` files are git-ignored.
@@ -223,7 +223,7 @@ Every route can be tried without the front end, using the **Thunder Client** ext
 
 1. Run `npm run seed`, then start the API (`npm run dev` in `server/`).
 2. In Thunder Client: **Collections → ⋯ → Import** both collection files, and **Env → ⋯ → Import** `docs/api/thunder-environment_IRONPULSE-local.json`.
-3. Open the **IRONPULSE local** environment, set `baseUrl` to your API address (your local API, or the Render URL), `adminEmail`, `adminPassword` (your `ADMIN_PASSWORD`) and `forgedToken` (`abc.def.ghi`), and set it **active**.
+3. Open the **IRONPULSE local** environment, set `baseUrl` to your API's address (your local API, or the Render URL), `adminEmail`, `adminPassword` (your `ADMIN_PASSWORD`) and `forgedToken` (`abc.def.ghi`), and set it **active**.
 4. **Run All** on collection 1, then on collection 2 (it uses the tokens and ids that collection 1 saved). Every request checks its expected status code.
 
 The last request ("Wrong password") locks logins for 15 minutes after the 6th try; restart the API to reset it.
@@ -272,7 +272,7 @@ Render sets `PORT` itself; `server.js` reads it. Check: open `<API address>/api/
 
 **CI:** `.github/workflows/ci.yml` runs `npm ci` + `npm test` in `server/` and `client/` on every push and pull request (GitHub → *Actions* tab).
 
-**If something breaks:** "blocked by CORS policy" → `CLIENT_URL` doesn't match the site address exactly · requests go to `localhost` → `VITE_API_URL` wasn't set at build time, redeploy · 404 on refresh → missing rewrite · API exits on start → a missing env var or Atlas blocking the IP (see Render's logs).
+**If something breaks:** "blocked by CORS policy" → `CLIENT_URL` doesn't match the site address exactly · requests go to your own computer instead of Render → `VITE_API_URL` wasn't set at build time, redeploy · 404 on refresh → missing rewrite · API exits on start → a missing env var or Atlas blocking the IP (see Render's logs).
 
 ## Milestones
 

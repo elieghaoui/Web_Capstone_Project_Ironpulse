@@ -45,7 +45,7 @@ export default function TrainerProfile() {
       setNote('');
       reloadSlots(); // that time is no longer free
     } catch (err) {
-      setNotice({ type: 'error', text: err.message }); // e.g. plan limit reached
+      setNotice({ type: 'error', text: err.message, planLink: /plan/i.test(err.message) }); // e.g. plan limit reached
     } finally {
       setBusy(false);
     }
@@ -100,7 +100,11 @@ export default function TrainerProfile() {
                 <button type="submit" className="btn btn-primary" disabled={busy}>
                   {busy ? 'Booking…' : selected ? `Book ${formatDay(selected)} ${formatTime(selected)}` : 'Book a session'}
                 </button>
-                {notice && <Notice type={notice.type}>{notice.text}</Notice>}
+                {notice && (
+                  <Notice type={notice.type}>
+                    {notice.text} {notice.planLink && <Link to="/plans">See plans</Link>}
+                  </Notice>
+                )}
               </form>
             )}
           </div>
