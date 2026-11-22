@@ -4,7 +4,7 @@
 const HOUR = 60 * 60 * 1000;
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function gymTimeZone() {
+export function gymTimeZone() {
   return process.env.GYM_TIMEZONE || 'Asia/Beirut';
 }
 

@@ -1,7 +1,9 @@
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { describe, it, expect } from 'vitest';
+import mongoose from 'mongoose';
 import app from '../app.js';
+import { hasRoom } from '../utils/spots.js';
 
 // Lecture 22: requests without a browser. These cases are rejected before the
 // database is asked, so no port and no database are needed.
@@ -62,5 +64,14 @@ describe('/api/classes', () => {
   it('rejects an unknown cancelBookings value', async () => {
     const res = await request(app).delete('/api/classes/665f1c2e4b7a1d3f0c8e2a9d?cancelBookings=yes').set(adminAuth);
     expect(res.status).toBe(400);
+  });
+});
+
+describe('booking a class spot', () => {
+  // A top-level $expr crashed every class booking: sanitizeFilter refuses it.
+  it('uses a filter that sanitizeFilter accepts', () => {
+    const filter = hasRoom({ _id: new mongoose.Types.ObjectId(), capacity: 20 });
+    expect(() => mongoose.sanitizeFilter(filter)).not.toThrow();
+    expect(filter.bookedCount.$not).toEqual({ $gte: 20 }); // "not full"
   });
 });

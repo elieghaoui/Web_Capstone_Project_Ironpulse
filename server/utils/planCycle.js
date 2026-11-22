@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Booking } from '../models/Booking.js';
+import { gymTimeZone } from './time.js';
 
 const DAY = 24 * 60 * 60 * 1000;
 export const CYCLE_DAYS = 30;
@@ -39,8 +40,13 @@ export async function checkPlanAllows(user, type, startsAt) {
   const cycle = cycleFor(user.planStartedAt, startsAt);
   const used = await countUsed(user._id, type, cycle);
   if (used >= limit) {
-    const until = cycle.end.toISOString().slice(0, 10);
-    return { status: 403, error: `You've used all ${limit} ${what} of your ${plan.name} plan until ${until}` };
+    // e.g. "22 Dec", in the gym's time zone
+    const renews = cycle.end.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: gymTimeZone() });
+    const one = type === 'class' ? 'group class' : 'PT session';
+    const error = limit === 1
+      ? `You've used the 1 ${one} of your ${plan.name} plan. It renews on ${renews}.`
+      : `You've used all ${limit} ${what} of your ${plan.name} plan. They renew on ${renews}.`;
+    return { status: 403, error };
   }
   return null;
 }

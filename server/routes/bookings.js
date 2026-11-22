@@ -7,6 +7,7 @@ import { Booking } from '../models/Booking.js';
 import { validate, validateQuery, checkId, BookingInput, BookingUpdateInput, BookingsQuery } from '../middleware/validate.js';
 import { checkPlanAllows } from '../utils/planCycle.js';
 import { isTrainerAvailable } from '../utils/time.js';
+import { hasRoom } from '../utils/spots.js';
 
 // Bookings are our main resource. requireAuth runs first (see app.js), and every
 // member query includes { userId: req.userId }: a member can only see, edit or
@@ -60,11 +61,7 @@ bookingsRouter.post('/', validate(BookingInput), async (req, res) => {
     // Take a spot: ONE atomic update that adds 1 only if bookedCount < capacity.
     // If two members click "Book" for the last spot at the same moment, MongoDB
     // applies the updates one after the other: the second no longer matches -> null -> 409.
-    const taken = await GymClass.findOneAndUpdate(
-      mongoose.trusted({ _id: gymClass._id, $expr: { $lt: ['$bookedCount', '$capacity'] } }),
-      { $inc: { bookedCount: 1 } },
-      { new: true }
-    );
+    const taken = await GymClass.findOneAndUpdate(hasRoom(gymClass), { $inc: { bookedCount: 1 } }, { new: true });
     if (!taken) return res.status(409).json({ error: 'This class is full' });
 
     try {
