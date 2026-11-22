@@ -9,7 +9,7 @@
   "data": [
     {
       "name": "baseUrl",
-      "value": "http://localhost:3000"
+      "value": "PUT-YOUR-API-ADDRESS-HERE"
     },
     {
       "name": "adminEmail",

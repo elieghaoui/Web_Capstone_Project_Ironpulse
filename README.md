@@ -123,8 +123,8 @@ npm run dev     # app on http://localhost:5173
 
 | Setting | Development | Production |
 | --- | --- | --- |
-| `VITE_API_URL` (client) | `http://localhost:3000` | the live API address |
-| `CLIENT_URL` (server) | `http://localhost:5173` | the live site address (no trailing `/`) |
+| `VITE_API_URL` (client) | your local API address (`client/.env.development`) | the live API address (Vercel settings) |
+| `CLIENT_URL` (server) | your local Vite address (`server/.env`) | the live site address (Render settings, no trailing `/`) |
 | `MONGODB_URI`, `JWT_SECRET` (server) | `server/.env` on your laptop | the host's settings page |
 
 Every `VITE_` value ships to the browser, so secrets only ever go in `server/.env`. Both `.env` files are git-ignored.
@@ -223,7 +223,7 @@ Every route can be tried without the front end, using the **Thunder Client** ext
 
 1. Run `npm run seed`, then start the API (`npm run dev` in `server/`).
 2. In Thunder Client: **Collections → ⋯ → Import** both collection files, and **Env → ⋯ → Import** `docs/api/thunder-environment_IRONPULSE-local.json`.
-3. Open the **IRONPULSE local** environment, check `baseUrl` (`http://localhost:3000`), `adminEmail`, `adminPassword` (your `ADMIN_PASSWORD`) and `forgedToken` (`abc.def.ghi`), and set it **active**.
+3. Open the **IRONPULSE local** environment, set `baseUrl` to your API address (your local API, or the Render URL), `adminEmail`, `adminPassword` (your `ADMIN_PASSWORD`) and `forgedToken` (`abc.def.ghi`), and set it **active**.
 4. **Run All** on collection 1, then on collection 2 (it uses the tokens and ids that collection 1 saved). Every request checks its expected status code.
 
 The last request ("Wrong password") locks logins for 15 minutes after the 6th try; restart the API to reset it.
