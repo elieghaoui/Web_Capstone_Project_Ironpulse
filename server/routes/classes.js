@@ -10,14 +10,9 @@ import { validate, validateQuery, checkId, ClassInput, ClassUpdateInput, Classes
 const classesRouter = express.Router();
 const adminOnly = [requireAuth, requireAdmin];
 
-// Adds spotsLeft (capacity minus active bookings) to each class, in one query.
-async function withSpotsLeft(classes) {
-  const counts = await Booking.aggregate([
-    { $match: { type: 'class', status: 'booked', classId: { $in: classes.map((c) => c._id) } } },
-    { $group: { _id: '$classId', count: { $sum: 1 } } },
-  ]);
-  const booked = new Map(counts.map((c) => [c._id.toString(), c.count]));
-  return classes.map((c) => ({ ...c.toObject(), spotsLeft: c.capacity - (booked.get(c._id.toString()) ?? 0) }));
+// Adds spotsLeft to each class: capacity minus the class's bookedCount counter.
+function withSpotsLeft(classes) {
+  return classes.map((c) => ({ ...c.toObject(), spotsLeft: c.capacity - (c.bookedCount ?? 0) }));
 }
 
 // GET /api/classes?category=Yoga  -> upcoming classes, soonest first
@@ -26,20 +21,21 @@ classesRouter.get('/', validateQuery(ClassesQuery), async (req, res) => {
   const filter = { startsAt: mongoose.trusted({ $gte: new Date() }) };
   if (req.validQuery.category) filter.category = req.validQuery.category;
   const classes = await GymClass.find(filter).sort({ startsAt: 1 }).populate('trainerId', 'name');
-  res.json(await withSpotsLeft(classes));
+  res.json(withSpotsLeft(classes));
 });
 
 classesRouter.get('/:id', checkId, async (req, res) => {
   const gymClass = await GymClass.findById(req.params.id).populate('trainerId', 'name');
   if (!gymClass) return res.status(404).json({ error: 'Class not found' });
-  res.json((await withSpotsLeft([gymClass]))[0]);
+  res.json(withSpotsLeft([gymClass])[0]);
 });
 
 classesRouter.post('/', adminOnly, validate(ClassInput), async (req, res) => {
   if (!(await Trainer.exists({ _id: req.body.trainerId }))) {
     return res.status(400).json({ error: 'trainerId does not match any trainer' });
   }
-  res.status(201).json(await GymClass.create(req.body));
+  const { bookedCount, ...fields } = req.body; // the counter is never set by hand
+  res.status(201).json(await GymClass.create(fields));
 });
 
 classesRouter.patch('/:id', adminOnly, checkId, validate(ClassUpdateInput), async (req, res) => {
@@ -47,14 +43,17 @@ classesRouter.patch('/:id', adminOnly, checkId, validate(ClassUpdateInput), asyn
   if (req.body.trainerId && !(await Trainer.exists({ _id: req.body.trainerId }))) {
     return res.status(400).json({ error: 'trainerId does not match any trainer' });
   }
-  if (req.body.capacity !== undefined) {
-    const booked = await Booking.countDocuments({ classId: id, status: 'booked' });
-    if (req.body.capacity < booked) {
-      return res.status(409).json({ error: `${booked} members already booked this class: capacity can't go below that` });
-    }
+  const { bookedCount, ...changes } = req.body; // the counter is never set by hand
+  // Lowering capacity: only if it stays >= the spots already taken, checked in the same atomic update.
+  const filter = changes.capacity === undefined
+    ? { _id: id }
+    : { _id: id, bookedCount: mongoose.trusted({ $lte: changes.capacity }) };
+  const gymClass = await GymClass.findOneAndUpdate(filter, changes, { new: true, runValidators: true });
+  if (!gymClass) {
+    const existing = await GymClass.findById(id);
+    if (!existing) return res.status(404).json({ error: 'Class not found' });
+    return res.status(409).json({ error: `${existing.bookedCount} members already booked this class: capacity can't go below that` });
   }
-  const gymClass = await GymClass.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-  if (!gymClass) return res.status(404).json({ error: 'Class not found' });
 
   // Bookings keep a copy of the start time, so move them with the class.
   if (req.body.startsAt) {

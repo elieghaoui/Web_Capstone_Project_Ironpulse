@@ -104,7 +104,7 @@ Open `server/.env` and fill in `MONGODB_URI` (from Atlas), a long random `JWT_SE
 
 ```bash
 npm run seed    # resets plans, trainers, 2 weeks of classes, bookings and member accounts; keeps/creates the admin
-npm run seed:classes   # later: only adds the next 4 weeks of classes (deletes nothing)
+npm run seed:classes   # later: only adds the next 4 weeks of classes (deletes nothing) and recounts booked spots
 npm run dev     # API on http://localhost:3000 (node --watch restarts it on every save)
 ```
 
@@ -186,7 +186,7 @@ Status codes: 200 OK, 201 created, 204 done (no body), 400 bad input or malforme
 
 ### Booking rules (checked on the server)
 
-- Classes: the class must not have started, not be full, and not already be booked by you.
+- Classes: the class must not have started, not be full, and not already be booked by you. Each class keeps a `bookedCount`; booking takes a spot with **one atomic MongoDB update** (`$inc` only if `bookedCount < capacity`), so two members clicking *Book* on the last spot at the same moment can't both get it: one gets 201, the other 409 "This class is full". Cancelling gives the spot back with `$inc: -1`.
 - PT: 1 hour, starting on the hour, inside the trainer's weekly hours (Beirut time), and the slot must be free.
 - Plan limits: each plan includes a number of classes and PT sessions per **30-day period** starting the day you chose the plan (Basic: none; Elite and up: unlimited classes). No plan, or limit reached: 403.
 - Cancelling: up to **12 hours** before the start. The booking is kept as `cancelled` and no longer counts toward your limit.
@@ -203,6 +203,10 @@ cd client && npm test   # 8 tests
 
 - **API** (`server/tests/api.test.js`, Vitest + Supertest against `app.js`, no database needed): missing or forged token → 401, unknown booking type → 400, malformed id → 400, short password on signup → 400, `{"$ne": null}` login injection → 400, member creating a plan → 403, member cancelling a class → 403, bad `cancelBookings` value → 400.
 - **Components** (`client/src/components/*.test.jsx`, Vitest + React Testing Library + user-event): `ClassRow` shows the class, calls `onBook` with the class id, disables *Book* when the class is full and shows *Booked ✓* instead of a button; `BookingCard` asks for confirmation before cancelling and hides *Cancel* less than 12 hours before the start; the admin `ConfirmDelete` button only deletes after the second click and shows the server's message when a delete is refused (409).
+- **Race test** (`server/tests/race.test.js`): two members book the last spot of a class at the same moment → exactly one 201 and one 409. It needs a real database, so it only runs when `TEST_MONGODB_URI` points to a separate test database (otherwise it is skipped, also in CI):
+  ```powershell
+  $env:TEST_MONGODB_URI="mongodb+srv://<user>:<password>@<cluster>/ironpulse-test"; npm test
+  ```
 - We checked the tests can fail: changing `onBook(gymClass._id)` to `onBook('oops')` in `ClassRow.jsx` makes "calls onBook with the class id" fail.
 - `npm run test:watch` re-runs the tests on every save.
 

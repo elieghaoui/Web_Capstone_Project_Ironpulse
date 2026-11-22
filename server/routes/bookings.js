@@ -56,12 +56,27 @@ bookingsRouter.post('/', validate(BookingInput), async (req, res) => {
     if (await Booking.exists({ userId: user._id, classId: gymClass._id, status: 'booked' })) {
       return res.status(409).json({ error: 'You already booked this class' });
     }
-    const taken = await Booking.countDocuments({ classId: gymClass._id, status: 'booked' });
-    if (taken >= gymClass.capacity) return res.status(409).json({ error: 'This class is full' });
 
-    // The owner comes from the token, never from the request body.
-    const booking = await Booking.create({ userId: user._id, type, classId: gymClass._id, startsAt: gymClass.startsAt, note });
-    return res.status(201).json(await withDetails(Booking.findById(booking._id)));
+    // Take a spot: ONE atomic update that adds 1 only if bookedCount < capacity.
+    // If two members click "Book" for the last spot at the same moment, MongoDB
+    // applies the updates one after the other: the second no longer matches -> null -> 409.
+    const taken = await GymClass.findOneAndUpdate(
+      mongoose.trusted({ _id: gymClass._id, $expr: { $lt: ['$bookedCount', '$capacity'] } }),
+      { $inc: { bookedCount: 1 } },
+      { new: true }
+    );
+    if (!taken) return res.status(409).json({ error: 'This class is full' });
+
+    try {
+      // The owner comes from the token, never from the request body.
+      const booking = await Booking.create({ userId: user._id, type, classId: gymClass._id, startsAt: gymClass.startsAt, note });
+      return res.status(201).json(await withDetails(Booking.findById(booking._id)));
+    } catch (err) {
+      // e.g. a double click: the unique index refused the second booking (-> 409 in errorHandler).
+      // Give the spot back so the counter stays right.
+      await GymClass.updateOne({ _id: gymClass._id }, { $inc: { bookedCount: -1 } });
+      throw err;
+    }
   }
 
   // type === 'pt': a 1-hour session with a trainer
@@ -114,8 +129,13 @@ bookingsRouter.delete('/:id', checkId, async (req, res) => {
   if (!isAdmin && booking.startsAt.getTime() - Date.now() < CANCEL_LIMIT_HOURS * HOUR) {
     return res.status(400).json({ error: `Too late to cancel: bookings can be cancelled up to ${CANCEL_LIMIT_HOURS} hours before they start` });
   }
-  booking.status = 'cancelled';
-  await booking.save();
+  // Atomic too: only one request can switch it from "booked" to "cancelled",
+  // so a double click can't free the same spot twice.
+  const cancelled = await Booking.findOneAndUpdate({ _id: booking._id, status: 'booked' }, { status: 'cancelled' });
+  if (!cancelled) return res.status(400).json({ error: 'This booking is already cancelled' });
+  if (cancelled.type === 'class') {
+    await GymClass.updateOne({ _id: cancelled.classId }, { $inc: { bookedCount: -1 } }); // the spot is free again
+  }
   res.sendStatus(204);
 });
 

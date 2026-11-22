@@ -16,6 +16,9 @@ const gymClassSchema = new mongoose.Schema(
     startsAt: { type: Date, required: true },
     durationMin: { type: Number, required: true, min: 15, max: 180 },
     capacity: { type: Number, required: true, min: 1 },
+    // Active bookings. Only changed with atomic $inc updates (see routes/bookings.js),
+    // so two members can never both take the last spot.
+    bookedCount: { type: Number, default: 0, min: 0 },
   },
   { timestamps: true }
 );
