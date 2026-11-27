@@ -2,7 +2,7 @@
 
 A full-stack web app for IRONPULSE, a gym in Beirut. Members choose a membership plan, book group classes with limited spots and book 1-hour sessions with personal trainers. Staff manage plans, trainers, classes and bookings from an admin panel.
 
-**Team:** Adam Bou Ghosn, Elie El Ghaoui · Web Programming capstone
+**Team:** Adam Bou Ghosn, Elie El Ghaoui
 
 | | Live address |
 | --- | --- |
@@ -22,7 +22,7 @@ The API runs on Render's free plan, which sleeps when nobody uses it: the first 
 - **Beyond CRUD:** all booking rules (capacity, plan limits per 30-day period, trainer hours, cancellation window) are checked on the server.
 - **Design:** dark, animated UI built with CSS transitions and keyframes; responsive on phone and desktop.
 
-## Design (Milestone 1)
+## Design
 
 - **[Wireframes](docs/wireframes.png)**: every main screen, low-fi, with arrows for how users move between them.
 - **[Database schema](docs/schema.md)**: every collection with its fields, types and references, plus which screen uses which data.
@@ -62,8 +62,8 @@ The API runs on Render's free plan, which sleeps when nobody uses it: the first 
 ironpulse/
 ├── .github/workflows/      ci.yml (tests on every push)
 ├── docs/                   wireframes.png, schema.md, api/ (Thunder Client collection)
-├── SECURITY.md             security audit (lecture 21)
-├── PERFORMANCE.md          Lighthouse before / fix / after (lecture 22)
+├── SECURITY.md             security audit
+├── PERFORMANCE.md          Lighthouse before / fix / after
 ├── client/                 React app (Vite)
 │   └── src/
 │       ├── api/client.js   apiFetch: base URL, token header, errors, 401 -> auth:expired
@@ -194,7 +194,7 @@ Status codes: 200 OK, 201 created, 204 done (no body), 400 bad input or malforme
 - Every member booking query is filtered by the logged-in user: someone else's booking id gives **404**.
 - Admins can't simply delete a class with bookings (409: cancel it instead), a trainer with classes or sessions, or a plan members are on (409).
 
-## Automated tests (Session 22)
+## Automated tests
 
 ```bash
 cd server && npm test   # 9 tests
@@ -230,7 +230,7 @@ The last request ("Wrong password") locks logins for 15 minutes after the 6th tr
 
 ## Security
 
-See **[SECURITY.md](SECURITY.md)** for our audit of the Session 21 checklist (attack, before, fix, after). In short:
+See **[SECURITY.md](SECURITY.md)** for our security audit (attack, before, fix, after). In short:
 
 - Every request body is validated with **zod** (wrong type or shape: 400; unknown keys such as `role` or `userId` are dropped; `.max()` on every string).
 - `mongoose.set('sanitizeFilter', true)` blocks `$ne`-style NoSQL injection (our own `$gte` filters are wrapped in `mongoose.trusted`); query strings are validated too, and malformed ids get 400.
@@ -240,7 +240,7 @@ See **[SECURITY.md](SECURITY.md)** for our audit of the Session 21 checklist (at
 - `helmet()` sets secure headers and hides `X-Powered-By`; CORS only allows our front end.
 - Secrets live in `.env` (git-ignored); the API refuses to start without `MONGODB_URI` and `JWT_SECRET`.
 
-## Deployment (Session 23)
+## Deployment
 
 Three pieces, three hosts: the React app on **Vercel**, the Express API on **Render**, the data on **MongoDB Atlas**. The browser only talks to the API; only the API talks to the database.
 
@@ -273,12 +273,3 @@ Render sets `PORT` itself; `server.js` reads it. Check: open `<API address>/api/
 **CI:** `.github/workflows/ci.yml` runs `npm ci` + `npm test` in `server/` and `client/` on every push and pull request (GitHub → *Actions* tab).
 
 **If something breaks:** "blocked by CORS policy" → `CLIENT_URL` doesn't match the site address exactly · requests go to your own computer instead of Render → `VITE_API_URL` wasn't set at build time, redeploy · 404 on refresh → missing rewrite · API exits on start → a missing env var or Atlas blocking the IP (see Render's logs).
-
-## Milestones
-
-- [x] Proposal (Session 19)
-- [x] Milestone 1: scaffold, wireframes and schema (Session 20)
-- [x] Milestone 2: auth + CRUD routes working (Session 21)
-- [x] Milestone 3: front end connected, booking works, tests and performance (Session 22)
-- [x] Milestone 4: deployed on Vercel + Render + Atlas, CI on GitHub Actions (Session 23)
-- [ ] Final demo (Session 24)

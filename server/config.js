@@ -1,4 +1,4 @@
-// Fail fast (lecture 21): crash at startup if a secret is missing,
+// Fail fast: crash at startup if a secret is missing,
 // instead of failing later on the first login.
 export function checkEnv(keys = ['MONGODB_URI', 'JWT_SECRET', 'CLIENT_URL']) {
   for (const key of keys) {

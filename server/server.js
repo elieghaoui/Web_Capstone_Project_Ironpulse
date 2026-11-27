@@ -5,7 +5,7 @@ import { checkEnv } from './config.js';
 
 const port = Number(process.env.PORT) || 3000; // the host sets PORT when deployed
 
-// Connect first, then listen (lecture 18).
+// Connect first, then listen.
 try {
   checkEnv(); // crash now if MONGODB_URI or JWT_SECRET is missing
   await mongoose.connect(process.env.MONGODB_URI);

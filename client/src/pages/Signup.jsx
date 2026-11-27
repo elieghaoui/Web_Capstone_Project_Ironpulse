@@ -4,7 +4,7 @@ import PageTransition from '../components/PageTransition.jsx';
 import { ErrorMessage } from '../components/Status.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 
-// Client checks help the user; the server checks again (lecture 15).
+// Client checks help the user; the server checks again.
 function validate(form) {
   const errors = {};
   if (!form.name.trim()) errors.name = 'Enter your name';
@@ -24,7 +24,7 @@ export default function Signup() {
   const [serverError, setServerError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // One handler for every field: input names match the keys in form (lecture 15).
+  // One handler for every field: input names match the keys in form.
   function handleChange(e) {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });

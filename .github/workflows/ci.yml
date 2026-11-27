@@ -1,4 +1,4 @@
-# Lecture 23: a clean machine runs every test on each push and pull request.
+# A clean machine runs every test on each push and pull request.
 # Red = something broke, so nothing should ship until it's green again.
 name: CI
 on: [push, pull_request]

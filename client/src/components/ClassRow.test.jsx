@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { it, expect, vi } from 'vitest';
 import ClassRow from './ClassRow';
 
-// Lecture 22: test what the user sees.
+// Test what the user sees.
 const gymClass = {
   _id: 'c1',
   title: 'HIIT Burn',

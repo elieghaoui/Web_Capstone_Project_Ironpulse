@@ -1,5 +1,5 @@
 /* =========================================================
-   IRONPULSE design system (lecture 6)
+   IRONPULSE design system
    01 Tokens: named values (colors by role, spacing scale, radii, type)
    02 Components: buttons, cards, chips... built only from tokens
    03 Rules: transitions 120-300 ms; animate transform/opacity only
@@ -793,7 +793,7 @@ h3 {
   border-color: var(--danger);
 }
 
-/* message under one field (lecture 15) */
+/* message under one field */
 .field-error {
   color: var(--danger);
   font-size: 0.85rem;
@@ -837,7 +837,7 @@ h3 {
   margin: var(--sp-1) 0;
 }
 
-/* ---------- Milestone 3: booking UI ---------- */
+/* ---------- Booking UI ---------- */
 
 /* Inline result next to the button that was used */
 .notice {

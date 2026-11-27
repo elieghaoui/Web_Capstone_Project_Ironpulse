@@ -6,7 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { Loader } from './components/Status.jsx';
 import Home from './pages/Home.jsx';
 
-// Performance fix (lecture 22): every page except Home is split into its own file
+// Performance: every page except Home is split into its own file
 // and only downloaded the first time someone opens it. Home stays in the main
 // bundle because it is the first thing every visitor sees.
 const Plans = lazy(() => import('./pages/Plans.jsx'));
@@ -22,7 +22,7 @@ const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 export default function App() {
   const { pathname } = useLocation();
 
-  // Start every new page at the top (an effect: it reaches outside React, lecture 15).
+  // Start every new page at the top (an effect: it reaches outside React).
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);

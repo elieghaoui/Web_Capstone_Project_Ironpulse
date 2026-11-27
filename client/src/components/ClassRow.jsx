@@ -15,7 +15,7 @@ export default function ClassRow({ gymClass, booked, busy, notice, onBook }) {
         <p className="muted">
           {gymClass.durationMin} min · {gymClass.room} · with {gymClass.trainerId?.name ?? 'TBA'}
         </p>
-        {/* scaleX instead of width: lecture 6, animate transform only */}
+        {/* scaleX instead of width: animate transform only */}
         <div className="spots-bar" aria-hidden="true">
           <span style={{ '--fill': fill }} />
         </div>

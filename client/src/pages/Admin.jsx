@@ -12,7 +12,7 @@ const tabs = [
   { id: 'bookings', label: 'Bookings', Panel: BookingsAdmin },
 ];
 
-// Admin panel: one page, the selected tab is state (lecture 14).
+// Admin panel: one page, the selected tab is state.
 // Only admins get here (ProtectedRoute adminOnly), and the API checks again on every write.
 export default function Admin() {
   const [tab, setTab] = useState('classes');

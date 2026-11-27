@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../api/client.js';
 
-// Loads a GET route and tracks loading / error / data (lecture 20, layer 02).
+// Loads a GET route and tracks loading / error / data.
 // Call reload() after a create, update or delete to fetch fresh data.
 // Pass null as the path to load nothing yet (e.g. "my bookings" while logged out).
 export function useApi(path) {

@@ -13,7 +13,7 @@ export function errorHandler(err, req, res, next) {
     return res.status(400).json({ error: 'Invalid input', details });
   }
   if (err instanceof mongoose.Error.CastError) {
-    return res.status(400).json({ error: 'Invalid id' }); // lecture 18: malformed id = 400
+    return res.status(400).json({ error: 'Invalid id' }); // malformed id = 400
   }
   if (err?.code === 11000) {
     // A unique index refused a duplicate: say which one (keyValue = the fields involved).

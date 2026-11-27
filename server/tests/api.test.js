@@ -6,7 +6,7 @@ import app from '../app.js';
 import { hasRoom } from '../utils/spots.js';
 import { errorHandler } from '../middleware/errorHandler.js';
 
-// Lecture 22: requests without a browser. These cases are rejected before the
+// Requests without a browser. These cases are rejected before the
 // database is asked, so no port and no database are needed.
 process.env.JWT_SECRET ??= 'test-secret';
 const memberToken = jwt.sign({ sub: '665f1c2e4b7a1d3f0c8e2a9b', role: 'member' }, process.env.JWT_SECRET);

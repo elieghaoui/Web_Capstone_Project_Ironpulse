@@ -1,4 +1,4 @@
-# Performance (Session 22)
+# Performance
 
 Measured with **Lighthouse** in Chrome DevTools (Incognito, mode *Navigation*, device *Desktop*) on the production build:
 `npm run build` then `npm run preview` in `client/`, the preview address Vite prints (Home page), API running locally.

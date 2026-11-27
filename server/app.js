@@ -13,20 +13,20 @@ import trainersRouter from './routes/trainers.js';
 import classesRouter from './routes/classes.js';
 import bookingsRouter from './routes/bookings.js';
 
-// Backstop against NoSQL injection (lecture 21): filters like { $ne: ... } coming
+// Backstop against NoSQL injection: filters like { $ne: ... } coming
 // from user input are treated as plain values. Our OWN operators ($gte, $lt...)
 // are wrapped in mongoose.trusted(...), otherwise they'd be neutralised too.
 mongoose.set('sanitizeFilter', true);
 
-// app.js builds the app, server.js connects and listens (lecture 22: split app from listen).
+// app.js builds the app, server.js connects and listens (so tests can import the app alone).
 const app = express();
 
 // Render puts a proxy in front of us: trust it so the rate limiter sees real IPs.
 app.set('trust proxy', 1);
 
-app.use(logger); // lecture 16: runs first, prints every request
+app.use(logger); // runs first, prints every request
 app.use(helmet()); // secure headers, hides X-Powered-By
-// Only our React app may call the API from a browser (lecture 23: CLIENT_URL).
+// Only our React app (CLIENT_URL) may call the API from a browser.
 // No trailing / in the address! server.js refuses to start if it's missing.
 app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json({ limit: '10kb' })); // fills req.body, caps its size
@@ -41,7 +41,7 @@ const loginLimiter = rateLimit({
 app.use('/api', apiLimiter);
 app.use('/api/auth/login', loginLimiter);
 
-// A route the host can ping (lecture 23)
+// A route the host can ping to check the API is up
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 app.use('/api/auth', authRouter); // public: signup, login (+ protected /me)

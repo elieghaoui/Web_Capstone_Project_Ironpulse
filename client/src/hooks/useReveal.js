@@ -22,7 +22,7 @@ export function useReveal() {
       { threshold: 0.2 }
     );
     observer.observe(element);
-    return () => observer.disconnect(); // cleanup (lecture 15)
+    return () => observer.disconnect(); // cleanup
   }, []);
 
   return [ref, visible];

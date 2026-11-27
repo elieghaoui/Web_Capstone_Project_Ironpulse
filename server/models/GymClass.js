@@ -23,7 +23,7 @@ const gymClassSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Indexes (lecture 22): GET /api/classes filters by category and sorts by startsAt.
+// Indexes: GET /api/classes filters by category and sorts by startsAt.
 gymClassSchema.index({ startsAt: 1 });
 gymClassSchema.index({ category: 1, startsAt: 1 });
 

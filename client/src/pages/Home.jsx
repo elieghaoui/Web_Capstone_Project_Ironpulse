@@ -36,7 +36,7 @@ function Counter({ to, suffix = '' }) {
       if (progress < 1) frame = requestAnimationFrame(tick);
     }
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame); // cleanup (lecture 15)
+    return () => cancelAnimationFrame(frame); // cleanup
   }, [visible, to]);
 
   return <span ref={ref}>{shown}{suffix}</span>;

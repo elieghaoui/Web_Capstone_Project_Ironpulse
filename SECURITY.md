@@ -1,6 +1,6 @@
-# IRONPULSE security audit (lecture 21 lab)
+# IRONPULSE security audit
 
-We attacked our own API with the seven checks from the Session 21 checklist,
+We attacked our own API with seven common security checks,
 fixed what got through, and re-ran the same attack. Every "after" can be re-run
 with the Thunder Client collections in `docs/api/` (folder **4. Bob can't touch
 Alice's data** in collection 1 and **6. Security checks** in collection 2); each request
@@ -31,10 +31,10 @@ so no upcoming classes showed). Our own operators are now wrapped in
 - Login gives the same message for a wrong email or a wrong password.
 - JWT sent in the `Authorization: Bearer` header (not a cookie), so other sites can't forge requests with it (CSRF).
 - `requireAuth` returns 401 for a missing, forged or expired token; `requireAdmin` returns 403.
-- A malformed id (`/api/bookings/xyz`) gets 400 `Invalid id` before the database is asked (lecture 18).
+- A malformed id (`/api/bookings/xyz`) gets 400 `Invalid id` before the database is asked.
 - Express 5 sends errors thrown in `async` routes to the error handler, so a database problem gives a JSON 500 instead of crashing the server.
 - CORS only allows our own front end (`CLIENT_URL`). `trust proxy` is set so the rate limiter sees real IPs once deployed.
 
-## Still to do
+## HTTPS
 
-- **HTTPS:** production URLs and `CLIENT_URL` will use `https://` when we deploy (Milestone 4).
+- The live site (Vercel) and API (Render) are served over `https://`, and `CLIENT_URL` uses the `https://` address.

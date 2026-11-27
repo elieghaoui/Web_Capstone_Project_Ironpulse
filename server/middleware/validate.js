@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 import { CATEGORIES } from '../models/GymClass.js';
 
-// Validate at the door (lecture 21): wrong type or shape -> 400 before
+// Validate at the door: wrong type or shape -> 400 before
 // MongoDB ever sees it. Only the declared fields survive; unknown keys
 // such as "role" or "userId" are dropped (no mass assignment).
 export const validate = (schema) => (req, res, next) => {
@@ -24,7 +24,7 @@ export const validateQuery = (schema) => (req, res, next) => {
   next();
 };
 
-// Lecture 18: a malformed id is a bad request (400), a valid id that doesn't exist is 404.
+// A malformed id is a bad request (400), a valid id that doesn't exist is 404.
 export function checkId(req, res, next) {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ error: 'Invalid id' });
